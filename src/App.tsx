@@ -7,6 +7,7 @@ import Signup from './components/pages/Signup'
 import Login from './components/pages/Login'
 import NotFound from './components/pages/404'
 import Redirect from './components/pages/Redirect'
+import Header from './components/blocks/Header'
 
 const ROUTER_BASENAME = '/qkjudge'
 
@@ -15,6 +16,7 @@ function App() {
     <div className="flex">
       <BrowserRouter basename={ROUTER_BASENAME}>
         <main>
+          <Header />
           <div>
             <Routes>
               <Route index element={<Home />} />
