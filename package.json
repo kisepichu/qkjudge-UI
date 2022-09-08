@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-		"deploy": "npm run build && ./deploy.sh",
+		"deploy": "npm run build && chmod 777 ./deploy.sh && ./deploy.sh",
     "preview": "vite preview",
     "lint": "eslint --ext .tsx,.ts src/",
     "format": "prettier --write \"**/*.+(js|json|yml|ts|tsx)\""
