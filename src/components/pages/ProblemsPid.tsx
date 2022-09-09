@@ -56,7 +56,7 @@ function ProblemsPid() {
               code: ({ node, ...props }) => {
                 if (props.inline) return <code {...props} />
                 return (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between font-sans text-sm">
                     <code {...props} />
                     <button
                       onClick={() => {
