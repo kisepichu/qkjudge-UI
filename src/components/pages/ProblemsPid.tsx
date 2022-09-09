@@ -28,6 +28,16 @@ function ProblemsPid() {
     statement: ''
   })
 
+  function copy(i: number) {
+    const s = document.getElementById(`code_${i}`)
+    navigator.clipboard.writeText(s?.textContent).then(
+      () => {},
+      (err) => {
+        console.log(err)
+      }
+    )
+  }
+
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
     axios
@@ -36,9 +46,20 @@ function ProblemsPid() {
       })
       .then((res) => {
         setProblem(res.data)
+
+        console.log('effect')
+        const es = document.querySelectorAll('code')
+        // eslint-disable-next-line no-restricted-syntax
+        for (let i = 0; i < es.length; i += 1) {
+          console.log(i)
+          const button = document.createElement('button')
+          button.setAttribute('onClick', `copy(${i})`)
+          button.setAttribute('id', `code_${i}`)
+          button.innerHTML = 'Copy'
+          es[i].insertAdjacentElement('afterend', button)
+        }
       })
   }, [])
-
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
       <div className="m-auto p-8 max-w-11/12 rounded shadow-lg bg-light-50">
