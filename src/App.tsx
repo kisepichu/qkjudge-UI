@@ -7,15 +7,17 @@ import Signup from './components/pages/Signup'
 import Login from './components/pages/Login'
 import NotFound from './components/pages/404'
 import Redirect from './components/pages/Redirect'
+import Header from './components/blocks/Header'
 
 const ROUTER_BASENAME = '/qkjudge'
 
 function App() {
   return (
-    <div className="flex">
+    <div className="">
       <BrowserRouter basename={ROUTER_BASENAME}>
         <main>
-          <div>
+          <Header />
+          <div className="max-w-full m-auto">
             <Routes>
               <Route index element={<Home />} />
               <Route path="/problems" element={<Problems />} />
