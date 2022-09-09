@@ -47,13 +47,22 @@ function Header() {
         </Typography>
       </div>
       <div className="flex justify-end text-lg">
-        <Link to="/problems" className="my-auto mx-3">
+        <Link
+          to="/problems"
+          className="hidden md:block my-auto mx-1 p-2 active:bg-gray-100"
+        >
           Problems
         </Link>
-        <Link to="/submissions" className="my-auto mx-3">
+        <Link
+          to="/submissions"
+          className="hidden md:block my-auto mx-1 p-2 active:bg-gray-100"
+        >
           Submissions
         </Link>
-        <Link to="/custom_test" className="my-auto mx-3">
+        <Link
+          to="/custom_test"
+          className="hidden md:block my-auto mx-1 p-2 active:bg-gray-100"
+        >
           Custom Test
         </Link>
         <Box sx={{ flexGrow: 0 }}>

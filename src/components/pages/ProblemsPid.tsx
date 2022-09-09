@@ -65,7 +65,7 @@ function ProblemsPid() {
                         copy(s.slice(0, -1))
                       }}
                       type="button"
-                      className="text-md px-1 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-200"
+                      className="text-md px-1 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
                     >
                       Copy
                     </button>
