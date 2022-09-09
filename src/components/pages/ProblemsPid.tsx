@@ -6,6 +6,7 @@ import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 
 import 'katex/dist/katex.min.css' // `rehype-katex` does not import the CSS for you
+import { Button } from '@mui/material'
 
 interface Problem {
   id: number
@@ -27,15 +28,8 @@ function ProblemsPid() {
     difficulty: 0,
     statement: ''
   })
-
-  function copy(i: number) {
-    const s = document.getElementById(`code_${i}`)
-    navigator.clipboard.writeText(s?.textContent).then(
-      () => {},
-      (err) => {
-        console.log(err)
-      }
-    )
+  function copy(content: string) {
+    navigator.clipboard.writeText(content)
   }
 
   useEffect(() => {
@@ -46,18 +40,6 @@ function ProblemsPid() {
       })
       .then((res) => {
         setProblem(res.data)
-
-        console.log('effect')
-        const es = document.querySelectorAll('code')
-        // eslint-disable-next-line no-restricted-syntax
-        for (let i = 0; i < es.length; i += 1) {
-          console.log(i)
-          const button = document.createElement('button')
-          button.setAttribute('onClick', `copy(${i})`)
-          button.setAttribute('id', `code_${i}`)
-          button.innerHTML = 'Copy'
-          es[i].insertAdjacentElement('afterend', button)
-        }
       })
   }, [])
   return (
@@ -68,6 +50,27 @@ function ProblemsPid() {
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
             rehypePlugins={[rehypeKatex]}
+            components={{
+              // eslint-disable-next-line react/no-unstable-nested-components
+              code: ({ node, ...props }) => {
+                if (props.inline) return <code {...props} />
+                return (
+                  <div className="flex justify-between">
+                    <code {...props} />
+                    <button
+                      onClick={() => {
+                        const s: string = props.children[0]
+                        copy(s.slice(0, -1))
+                      }}
+                      type="button"
+                      className="text-md px-1 ring-1 hover:ring-2 active:bg-gray-200"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                )
+              }
+            }}
           >
             {problem.statement}
           </ReactMarkdown>
