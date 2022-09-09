@@ -59,7 +59,8 @@ function ProblemsPid() {
                     <code {...props} />
                     <button
                       onClick={() => {
-                        const s: string = props.children[0]
+                        const s = props.children[0]
+                        if (typeof s !== 'string') return
                         copy(s.slice(0, -1))
                       }}
                       type="button"
