@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
@@ -64,7 +65,7 @@ function ProblemsPid() {
                         copy(s.slice(0, -1))
                       }}
                       type="button"
-                      className="text-md px-1 ring-1 hover:ring-2 active:bg-gray-200"
+                      className="text-md px-1 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-200"
                     >
                       Copy
                     </button>
