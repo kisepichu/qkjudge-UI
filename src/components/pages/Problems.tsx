@@ -29,7 +29,7 @@ function Problems() {
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
       <div className="m-auto p-4 md:p-8 max-w-11/12 shadow-lg bg-light-50">
-        <h1 className="text-3xl mb-6">Problems</h1>
+        <h1 className="text-2xl mb-3 md:(text-3xl mb-6)">Problems</h1>
         <div className="text-xl m-auto md:max-w-11/12">
           {problems.length ? (
             problems.map((p) => (
