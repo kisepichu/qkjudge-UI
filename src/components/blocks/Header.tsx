@@ -28,13 +28,13 @@ function Header() {
     setAnchorElUser(null)
   }
   return (
-    <header className="flex justify-between">
+    <header className="flex justify-between shadow">
       <h1 className="m-4">
         <Typography
           variant="h6"
           noWrap
-          component="a"
-          href="/"
+          component={Link}
+          to="/"
           sx={{
             mr: 2,
             display: { xs: 'none', md: 'flex' },
@@ -48,13 +48,13 @@ function Header() {
         </Typography>
       </h1>
       <div className="flex justify-end">
-        <Link to="/problems" className="my-4 mx-3">
+        <Link to="/problems" className="my-auto mx-3">
           Problems
         </Link>
-        <Link to="/submissions" className="my-4 mx-3">
+        <Link to="/submissions" className="my-auto mx-3">
           Submissions
         </Link>
-        <Link to="/custom_test" className="my-4 mx-3">
+        <Link to="/custom_test" className="my-auto mx-3">
           Custom Test
         </Link>
         <Box sx={{ flexGrow: 0 }}>
@@ -65,7 +65,7 @@ function Header() {
                 p: 0,
                 width: 40,
                 height: 40,
-                margin: '10px',
+                margin: '12px',
                 '& svg': {
                   fontSize: 36
                 }

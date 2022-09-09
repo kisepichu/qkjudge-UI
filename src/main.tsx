@@ -4,7 +4,7 @@ import { RecoilRoot } from 'recoil'
 import { ThemeProvider } from '@mui/material/styles'
 import App from './App'
 // eslint-disable-next-line import/no-unresolved
-import 'windi.css'
+import 'virtual:windi.css'
 import theme from './theme'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
