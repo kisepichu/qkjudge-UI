@@ -28,16 +28,15 @@ function Header() {
     setAnchorElUser(null)
   }
   return (
-    <header className="flex justify-between shadow">
-      <h1 className="m-4">
+    <header className="flex p-2 justify-between shadow">
+      <div className="m-4">
         <Typography
-          variant="h6"
+          variant="h5"
           noWrap
           component={Link}
           to="/"
           sx={{
             mr: 2,
-            display: { xs: 'none', md: 'flex' },
             fontFamily: '"Trebuchet MS", sans-serif',
             fontWeight: 700,
             color: 'inherit',
@@ -46,8 +45,8 @@ function Header() {
         >
           QK Judge
         </Typography>
-      </h1>
-      <div className="flex justify-end">
+      </div>
+      <div className="flex justify-end text-lg">
         <Link to="/problems" className="my-auto mx-3">
           Problems
         </Link>

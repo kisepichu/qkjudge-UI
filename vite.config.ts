@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), WindiCSS()],
   server: {
     proxy: {
-      '^/reactpractice/api/.*': {
+      '^/qkjudge/api/.*': {
         target: 'https://tqk.trap.show/qkjudge/',
         // target: 'https://dev_tqk_qkjudge.trap.games/',
         changeOrigin: true,

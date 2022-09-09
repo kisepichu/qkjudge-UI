@@ -18,7 +18,7 @@ function Home() {
       >
         QK Judge
       </Typography>
-      <div className="text-2xl m-1">
+      <div className="text-2xl m-1 font-jp text-gray-500">
         <p>競技プログラミングの</p>
         <p>問題が解けるサイトです。</p>
       </div>
