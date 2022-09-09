@@ -35,6 +35,7 @@ export default defineConfig({
       fuchsia: colors.fuchsia,
       pink: colors.pink,
       rose: colors.rose,
+      light: colors.light,
       herocyan: {
         100: '#8AFBFF'
       },

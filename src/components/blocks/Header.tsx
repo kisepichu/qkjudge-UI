@@ -28,7 +28,7 @@ function Header() {
     setAnchorElUser(null)
   }
   return (
-    <header className="flex p-2 justify-between shadow">
+    <header className="flex p-2 justify-between border-2 border-gray-200">
       <div className="m-4">
         <Typography
           variant="h5"
