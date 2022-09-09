@@ -13,11 +13,11 @@ const ROUTER_BASENAME = '/qkjudge'
 
 function App() {
   return (
-    <div className="flex">
+    <div className="">
       <BrowserRouter basename={ROUTER_BASENAME}>
         <main>
           <Header />
-          <div>
+          <div className="max-w-full m-auto">
             <Routes>
               <Route index element={<Home />} />
               <Route path="/problems" element={<Problems />} />
