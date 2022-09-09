@@ -5,6 +5,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   AppBar,
   Avatar,
+  Button,
+  Drawer,
   IconButton,
   Menu,
   MenuItem,
@@ -27,36 +29,121 @@ function Header() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null)
   }
+  const [drawerOpened, setDrawerOpened] = useState(false)
   return (
-    <header className="flex justify-between shadow">
-      <h1 className="m-4">
+    <header className="flex md:p-2 justify-between border-2 border-gray-200">
+      <div className="my-auto">
         <Typography
-          variant="h6"
+          variant="h5"
           noWrap
           component={Link}
           to="/"
           sx={{
             mr: 2,
-            display: { xs: 'none', md: 'flex' },
+            padding: '1rem',
+            fontSize: '18px',
             fontFamily: '"Trebuchet MS", sans-serif',
             fontWeight: 700,
             color: 'inherit',
-            textDecoration: 'none'
+            textDecoration: 'none',
+            '@media (min-width: 768px)': {
+              fontFamily: '"Trebuchet MS", sans-serif',
+              fontSize: '24px',
+              fontWeight: 700,
+              color: 'inherit',
+              textDecoration: 'none'
+            }
           }}
         >
           QK Judge
         </Typography>
-      </h1>
-      <div className="flex justify-end">
-        <Link to="/problems" className="my-auto mx-3">
+      </div>
+      <div className="flex justify-end text-md md:text-lg">
+        <Link
+          to="/problems"
+          className="hidden md:block my-auto mx-1 p-2 active:bg-gray-100"
+        >
           Problems
         </Link>
-        <Link to="/submissions" className="my-auto mx-3">
+        <Link
+          to="/submissions"
+          className="hidden md:block my-auto mx-1 p-2 active:bg-gray-100"
+        >
           Submissions
         </Link>
-        <Link to="/custom_test" className="my-auto mx-3">
+        <Link
+          to="/custom_test"
+          className="hidden md:block my-auto mx-1 p-2 active:bg-gray-100"
+        >
           Custom Test
         </Link>
+        <React.Fragment key="top">
+          <button
+            type="button"
+            className="md:hidden"
+            onClick={() => {
+              setDrawerOpened(true)
+            }}
+          >
+            Menu
+          </button>
+          <Drawer
+            anchor="top"
+            open={drawerOpened}
+            className="divide-y"
+            onClose={() => {
+              setDrawerOpened(false)
+            }}
+          >
+            <Typography
+              variant="h5"
+              noWrap
+              component={Link}
+              onClick={() => {
+                setDrawerOpened(false)
+              }}
+              to="/"
+              sx={{
+                mr: 2,
+                padding: '1rem',
+                fontSize: '18px',
+                fontFamily: '"Trebuchet MS", sans-serif',
+                fontWeight: 700,
+                color: 'inherit',
+                textDecoration: 'none'
+              }}
+            >
+              QK Judge
+            </Typography>
+            <Link
+              to="/problems"
+              onClick={() => {
+                setDrawerOpened(false)
+              }}
+              className="my-auto p-2 active:bg-gray-100"
+            >
+              Problems
+            </Link>
+            <Link
+              to="/submissions"
+              onClick={() => {
+                setDrawerOpened(false)
+              }}
+              className="my-auto p-2 active:bg-gray-100"
+            >
+              Submissions
+            </Link>
+            <Link
+              to="/custom_test"
+              onClick={() => {
+                setDrawerOpened(false)
+              }}
+              className="md:block my-auto p-2 active:bg-gray-100"
+            >
+              Custom Test
+            </Link>
+          </Drawer>
+        </React.Fragment>
         <Box sx={{ flexGrow: 0 }}>
           <Tooltip title="Guest">
             <IconButton
@@ -75,7 +162,12 @@ function Header() {
             </IconButton>
           </Tooltip>
           <Menu
-            sx={{ mt: '45px' }}
+            sx={{
+              mt: '24px',
+              '@media (min-width: 768px)': {
+                mt: '45px'
+              }
+            }}
             id="menu-appbar"
             anchorEl={anchorElUser}
             anchorOrigin={{

@@ -8,6 +8,8 @@ import Login from './components/pages/Login'
 import NotFound from './components/pages/404'
 import Redirect from './components/pages/Redirect'
 import Header from './components/blocks/Header'
+import CustomTest from './components/pages/CustomTest'
+import ProblemsPid from './components/pages/ProblemsPid'
 
 const ROUTER_BASENAME = '/qkjudge'
 
@@ -21,8 +23,10 @@ function App() {
             <Routes>
               <Route index element={<Home />} />
               <Route path="/problems" element={<Problems />} />
+              <Route path="/problems/:problem_id" element={<ProblemsPid />} />
               <Route path="/submissions" element={<Submissions />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/custom_test" element={<CustomTest />} />
               <Route element={<Redirect />}>
                 <Route path="/login" element={<Login />} />
               </Route>
