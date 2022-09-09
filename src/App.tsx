@@ -11,7 +11,7 @@ import Header from './components/blocks/Header'
 import CustomTest from './components/pages/CustomTest'
 import ProblemsPid from './components/pages/ProblemsPid'
 
-const ROUTER_BASENAME = '/qkjudge'
+const ROUTER_BASENAME = '/'
 
 function App() {
   return (

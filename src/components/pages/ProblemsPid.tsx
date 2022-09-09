@@ -56,7 +56,7 @@ function ProblemsPid() {
               code: ({ node, ...props }) => {
                 if (props.inline) return <code {...props} />
                 return (
-                  <div className="flex justify-between font-sans text-sm">
+                  <div className="flex justify-between font-sans text-md">
                     <code {...props} />
                     <button
                       onClick={() => {
@@ -65,7 +65,7 @@ function ProblemsPid() {
                         copy(s.slice(0, -1))
                       }}
                       type="button"
-                      className="text-md px-1 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
+                      className="text-sm px-1 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
                     >
                       Copy
                     </button>
