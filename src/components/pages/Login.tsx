@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Axios from 'axios'
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useUserMutators, useUserState } from '../states/userState'
@@ -15,11 +16,13 @@ function Login() {
   console.log('Login')
   const [usernameInput, setUsernameInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
+  const [result, setResult] = useState('')
   const user = useUserState()
   const setUser = useUserMutators()
   const navigate = useNavigate()
   const location = useLocation()
   function login() {
+    setResult('sending...')
     const url = `${import.meta.env.VITE_API_URL}/user/login`
     const usernameSent = usernameInput
     axios
@@ -40,6 +43,16 @@ function Login() {
             navigate('/')
           }
           setUser(usernameSent)
+          setResult('')
+        }
+      })
+      .catch((err) => {
+        if (Axios.isAxiosError(err) && err.response) {
+          if (err.response.status === 403) {
+            setResult('username or password is wrong')
+          } else if (err.response.status === 400) {
+            setResult('bad request')
+          }
         }
       })
   }
@@ -65,7 +78,7 @@ function Login() {
           <div className="m-2 flex justify-end">
             <div className="mx-4">password</div>
             <input
-              type="text"
+              type="password"
               id="inputPassword"
               onChange={(e) => setPasswordInput(e.target.value)}
               onKeyDown={(e) => {
@@ -77,6 +90,7 @@ function Login() {
             />
           </div>
           <div className="m-2 flex justify-end">
+            <div className="text-base m-2">{result}</div>
             <button
               type="submit"
               onClick={login}

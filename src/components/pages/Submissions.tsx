@@ -17,7 +17,7 @@ interface GetSubmissionsResponse {
 }
 
 function Submissions() {
-  console.log('Submissions')
+  // console.log('Submissions')
   const [submissions, setSubmissions] = useState<Submission[]>([])
 
   useEffect(() => {
