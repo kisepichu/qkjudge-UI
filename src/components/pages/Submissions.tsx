@@ -32,27 +32,29 @@ function Submissions() {
   }, [])
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
-      <div className="m-auto p-6 md:p-8 max-w-11/12 rounded shadow-lg bg-light-50">
+      <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
         <h1 className="text-2xl mb-3 md:(text-3xl mb-6)">Submissions</h1>
-        <div className="table w-2xl text-xl m-auto md:max-w-11/12 border rounded shadow">
-          <div className="table-header-group text-right">
-            <div className="table-row">
-              <div className="table-cell border p-2">ID</div>
-              <div className="table-cell border p-2">problem</div>
-              <div className="table-cell border p-2">user</div>
-              <div className="table-cell border p-2">result</div>
-              <div className="table-cell border p-2">language</div>
+        {submissions.length ? (
+          <div className="table w-2xl text-base m-auto max-w-full md:max-w-11/12 border rounded shadow">
+            <div className="table-header-group text-right">
+              <div className="table-row">
+                <div className="table-cell border p-2">ID</div>
+                <div className="table-cell border p-2">problem</div>
+                <div className="table-cell border p-2">user</div>
+                <div className="table-cell border p-2">result</div>
+                <div className="table-cell border p-2 hidden md:block">
+                  language
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="text-lg table-row-group text-right">
-            {submissions.length ? (
-              submissions.map((s) => (
+            <div className="text-base table-row-group text-right">
+              {submissions.map((s) => (
                 <div className="table-row" key={`${s.id}`}>
                   <Link
                     to={`/submissions/${s.id}`}
-                    className="table-cell p-2 w-auto block border font-semibold text-blue-500 hover:(underline bg-gray-100)"
+                    className="table-cell p-2 w-auto block border font-bold text-blue-500 hover:(underline bg-gray-100)"
                   >
-                    # {s.id}
+                    #{s.id}
                   </Link>
                   <div className="table-cell p-2 w-auto block border">
                     {s.problem_id}
@@ -63,16 +65,16 @@ function Submissions() {
                   <div className="table-cell p-2 w-auto block border">
                     {s.result}
                   </div>
-                  <div className="table-cell p-2 w-auto block border">
+                  <div className="table-cell p-2 w-auto block border hidden md:block">
                     {s.language}
                   </div>
                 </div>
-              ))
-            ) : (
-              <div>loading...</div>
-            )}
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div>loading...</div>
+        )}
       </div>
     </div>
   )

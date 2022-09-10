@@ -45,7 +45,7 @@ function ProblemsPid() {
   }, [])
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
-      <div className="m-auto p-6 md:p-8 max-w-11/12 rounded shadow-lg bg-light-50">
+      <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
         <h1 className="text-3xl mb-6 font-semibold">{problem.title}</h1>
         <div className="text-lg">
           <ReactMarkdown

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate, Navigate } from 'react-router-dom'
 import {
   AppBar,
   Avatar,
@@ -16,8 +16,11 @@ import {
 } from '@mui/material'
 import { Box, Container } from '@mui/system'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import { LoginRounded, PersonAddAltRounded } from '@mui/icons-material'
+import { useUserMutators, useUserState } from '../states/userState'
 
-const settings = ['Profile', 'Logout']
+const items = ['Profile', 'Logout']
+const item_guest = ['Sign up', 'Log in']
 
 function Header() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
@@ -30,6 +33,33 @@ function Header() {
     setAnchorElUser(null)
   }
   const [drawerOpened, setDrawerOpened] = useState(false)
+  const navigate = useNavigate()
+  const user = useUserState()
+  const setUser = useUserMutators()
+  function logout() {
+    const url = `${import.meta.env.VITE_API_URL}/user/logout`
+    axios.post(url, { withCredentials: true }).then(() => {
+      setUser('')
+      navigate('/')
+    })
+  }
+  // const [loading, setLoading] = useState(true)
+  // function check() {
+  //   const url: string = `${import.meta.env.VITE_API_URL}/whoami`
+  //   axios
+  //     .get(url, { withCredentials: true })
+  //     .then((res) => {
+  //       setUser(res.data)
+  //       setLoading(false)
+  //     })
+  //     .catch(() => {
+  //       setUser('-')
+  //       setLoading(false)
+  //     })
+  // }
+  // useEffect(() => {
+  //   check()
+  // }, [])
   return (
     <header className="flex md:p-1 justify-between border-2 border-gray-200">
       <div className="my-auto">
@@ -145,22 +175,43 @@ function Header() {
           </Drawer>
         </React.Fragment>
         <Box sx={{ flexGrow: 0 }}>
-          <Tooltip title="Guest">
-            <IconButton
-              onClick={handleOpenUserMenu}
-              sx={{
-                p: 0,
-                width: 40,
-                height: 40,
-                margin: '12px',
-                '& svg': {
-                  fontSize: 36
-                }
-              }}
-            >
-              <AccountCircleIcon />
-            </IconButton>
-          </Tooltip>
+          {user.username ? (
+            <Tooltip title={user.username || 'Log in'}>
+              <IconButton
+                onClick={handleOpenUserMenu}
+                sx={{
+                  p: 0,
+                  width: 40,
+                  height: 40,
+                  margin: '12px',
+                  '& svg': {
+                    fontSize: 36
+                  }
+                }}
+              >
+                <AccountCircleIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip title={user.username || 'Log in'}>
+              <IconButton
+                sx={{
+                  p: 0,
+                  width: 40,
+                  height: 40,
+                  margin: '12px',
+                  '& svg': {
+                    fontSize: 36
+                  }
+                }}
+              >
+                <Link to="/login">
+                  <LoginRounded />
+                </Link>
+              </IconButton>
+            </Tooltip>
+          )}
+
           <Menu
             sx={{
               mt: '24px',
@@ -182,11 +233,18 @@ function Header() {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
-            {settings.map((setting) => (
-              <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                <Typography textAlign="center">{setting}</Typography>
-              </MenuItem>
-            ))}
+            <MenuItem key="profile" onClick={handleCloseUserMenu}>
+              <Typography textAlign="center">Profile</Typography>
+            </MenuItem>
+            <MenuItem
+              key="logout"
+              onClick={() => {
+                handleCloseUserMenu()
+                logout()
+              }}
+            >
+              <Typography textAlign="center">Logout</Typography>
+            </MenuItem>
           </Menu>
         </Box>
       </div>
