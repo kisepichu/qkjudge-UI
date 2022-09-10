@@ -1,6 +1,6 @@
 {
   "name": "qkjudge",
-  "homepage": "https://tqk.blue/qkjudge",
+  "homepage": "https://judge.tqk.blue",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -21,6 +21,7 @@
     "@types/recoil": "^0.0.9",
     "axios": "^0.27.2",
     "react": "^18.2.0",
+    "react-code-blocks": "^0.0.9-0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.3",
     "react-router-dom": "^6.3.0",

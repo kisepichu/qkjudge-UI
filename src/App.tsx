@@ -6,30 +6,37 @@ import Submissions from './components/pages/Submissions'
 import Signup from './components/pages/Signup'
 import Login from './components/pages/Login'
 import NotFound from './components/pages/404'
-import Redirect from './components/pages/Redirect'
 import Header from './components/blocks/Header'
 import CustomTest from './components/pages/CustomTest'
 import ProblemsPid from './components/pages/ProblemsPid'
+import SubmissionsSid from './components/pages/SubmissionsSid'
+import CheckUser from './components/blocks/CheckUser'
 
-const ROUTER_BASENAME = '/qkjudge'
+const ROUTER_BASENAME = '/'
 
 function App() {
   return (
     <div className="">
       <BrowserRouter basename={ROUTER_BASENAME}>
         <main>
-          <Header />
+          <Routes>
+            <Route element={<CheckUser />}>
+              <Route path="*" element={<Header />} />
+            </Route>
+          </Routes>
           <div className="max-w-full m-auto">
             <Routes>
               <Route index element={<Home />} />
               <Route path="/problems" element={<Problems />} />
               <Route path="/problems/:problem_id" element={<ProblemsPid />} />
               <Route path="/submissions" element={<Submissions />} />
+              <Route
+                path="/submissions/:submission_id"
+                element={<SubmissionsSid />}
+              />
               <Route path="/signup" element={<Signup />} />
               <Route path="/custom_test" element={<CustomTest />} />
-              <Route element={<Redirect />}>
-                <Route path="/login" element={<Login />} />
-              </Route>
+              <Route path="/login" element={<Login />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
