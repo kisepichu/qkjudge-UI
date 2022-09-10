@@ -18,7 +18,7 @@ interface Problem {
 }
 
 function ProblemsPid() {
-  console.log('ProblemsPid')
+  // console.log('ProblemsPid')
   const params = useParams<{
     problem_id: string
   }>()

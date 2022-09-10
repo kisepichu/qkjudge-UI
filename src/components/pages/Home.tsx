@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material'
 
 function Home() {
-  console.log('Home')
+  // console.log('Home')
   return (
     <div>
       <div className="max-w-full bg-local p-16 md:p-64 bg-gradient-to-bl from-heroyellow-100 to-herocyan-100 text-center">

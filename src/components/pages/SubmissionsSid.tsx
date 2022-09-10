@@ -19,7 +19,7 @@ interface Submission {
 }
 
 function ProblemsPid() {
-  console.log('SubmissionsSid')
+  // console.log('SubmissionsSid')
   const params = useParams<{
     submission_id: string
   }>()
@@ -76,7 +76,7 @@ function ProblemsPid() {
           </button>
         </div>
         <div className="text-xl my-2">Info</div>
-        <div className="table w-full text-base font-jp border rounded shadow flex justify-between">
+        <div className="table w-full text-base border rounded shadow flex justify-between">
           <div className="table-row-group">
             <div className="table-cell p-1.5 border">date</div>
             <div className="table-cell p-1.5 border">{submission.date}</div>
