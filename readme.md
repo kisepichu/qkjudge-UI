@@ -4,7 +4,7 @@
 
 競プロ問題公開したい！
 
-サイト(WIP): [QK Judge](https://tqk.blue/qkjudge)
+サイト(WIP): [QK Judge](https://judge.tqk.blue)
 
 ここはクライアントのリポジトリです サーバー: [qkjudge](https://github.com/tqkoh/qkjudge)
 

@@ -31,7 +31,7 @@ function Header() {
   }
   const [drawerOpened, setDrawerOpened] = useState(false)
   return (
-    <header className="flex md:p-2 justify-between border-2 border-gray-200">
+    <header className="flex md:p-1 justify-between border-2 border-gray-200">
       <div className="my-auto">
         <Typography
           variant="h5"
