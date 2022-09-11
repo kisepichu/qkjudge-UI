@@ -5,10 +5,7 @@ import { Link, useLocation } from 'react-router-dom'
 import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
-import 'ace-builds/src-noconflict/mode-rust'
-import 'ace-builds/src-noconflict/mode-haskell'
-import 'ace-builds/src-noconflict/mode-golang'
-import 'ace-builds/src-noconflict/mode-typescript'
+import 'ace-builds/src-noconflict/mode-text'
 import 'ace-builds/src-noconflict/theme-github'
 import {
   Autocomplete,
@@ -93,7 +90,7 @@ function CustomTest() {
       })
       .catch((err) => {
         if (Axios.isAxiosError(err) && err.response) {
-          console.log(err.response.status)
+          console.log(err)
         }
       })
   }
@@ -128,6 +125,7 @@ function CustomTest() {
             // }}
             minLines={10}
             maxLines={30}
+            fontSize={16}
             className="m-auto my-2 border-0 border-1 shadow rounded"
           />
           <div className="m-2">Input</div>
@@ -141,6 +139,7 @@ function CustomTest() {
             width="100%"
             minLines={5}
             maxLines={10}
+            fontSize={16}
             className="m-auto my-2 border-0 border-1 shadow rounded"
           />
         </div>
@@ -192,6 +191,7 @@ function CustomTest() {
             width="100%"
             minLines={5}
             maxLines={10}
+            fontSize={16}
             className="m-auto my-2 border-0 border-1 shadow rounded"
           />
         </div>

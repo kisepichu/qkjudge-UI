@@ -18,10 +18,7 @@ import languages, { editor_mode, Language } from '../data/Languages'
 
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
-import 'ace-builds/src-noconflict/mode-rust'
-import 'ace-builds/src-noconflict/mode-haskell'
-import 'ace-builds/src-noconflict/mode-golang'
-import 'ace-builds/src-noconflict/mode-typescript'
+import 'ace-builds/src-noconflict/mode-text'
 import 'ace-builds/src-noconflict/theme-github'
 import { Autocomplete, Menu, MenuItem, TextField } from '@mui/material'
 
@@ -103,7 +100,7 @@ function ProblemsPid() {
       })
       .catch((err) => {
         if (Axios.isAxiosError(err) && err.response) {
-          console.log(err.response.status)
+          console.log(err)
         }
       })
   }
@@ -188,11 +185,10 @@ function ProblemsPid() {
                       <AceEditor
                         mode={editor_mode(language)}
                         theme="github"
-                        defaultValue={source}
                         onChange={(s) => {
                           setSource(s)
                         }}
-                        name="source"
+                        name="problemspid_source"
                         width="100%"
                         // setOptions={{
                         //   enableBasicAutocompletion: true,
@@ -201,6 +197,7 @@ function ProblemsPid() {
                         // }}
                         minLines={10}
                         maxLines={30}
+                        fontSize={16}
                         className="m-auto my-2 border-0 border-1 shadow rounded"
                       />
                     </div>
@@ -243,7 +240,7 @@ function ProblemsPid() {
                   </div>
                 ) : (
                   <div className="m-auto py-4 md:max-w-1/2">
-                    <div className="text-right">
+                    <div className="text-center">
                       提出するにはログインしてください
                     </div>
                     <LoginBlock />
