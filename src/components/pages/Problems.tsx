@@ -23,6 +23,7 @@ function Problems() {
   }, [])
 
   const [problems, setProblems] = useState<Problem[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
@@ -30,6 +31,11 @@ function Problems() {
       .get<GetProblemsResponse>(`${api}/problems`, { withCredentials: true })
       .then((res) => {
         setProblems(res.data.problems)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.log(err)
+        setLoading(true)
       })
   }, [])
 
@@ -38,7 +44,9 @@ function Problems() {
       <div className="m-auto p-2 md:p-6 max-w-11/12 shadow-lg bg-light-50">
         <h1 className="text-2xl m-2 mb-3 md:(text-3xl mb-6)">Problems</h1>
         <div className="text-xl m-auto md:max-w-11/12">
-          {problems.length ? (
+          {loading ? (
+            <LinearProgress />
+          ) : (
             problems.map((p) => (
               <Link
                 to={`/problems/${p.id}`}
@@ -62,8 +70,6 @@ function Problems() {
                 </div>
               </Link>
             ))
-          ) : (
-            <LinearProgress />
           )}
         </div>
       </div>

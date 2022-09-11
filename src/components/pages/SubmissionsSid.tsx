@@ -1,13 +1,24 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { LinearProgress } from '@mui/material'
+import { CircularProgress, Dialog, LinearProgress } from '@mui/material'
 import axios from 'axios'
 import Axios from 'axios'
+import { stringify } from 'postcss'
 import { useEffect, useState } from 'react'
 import { CodeBlock, dracula, github } from 'react-code-blocks'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import languages from '../data/Languages'
+import AceEditor from 'react-ace'
+import languages, { editor_mode } from '../data/Languages'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
+import 'ace-builds/src-noconflict/mode-python'
+import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-text'
+import 'ace-builds/src-noconflict/theme-github'
+
+interface TaskSummary {
+  id: number
+  result: string
+}
 
 interface Submission {
   id: number
@@ -15,13 +26,25 @@ interface Submission {
   author: string
   problem_id: number
   testcase_num: number
-  task_ids: number[]
+  tasks: TaskSummary[]
   result: string
   language_id: number
   source: string
 }
 
+interface Task {
+  id: number
+  submission_id: number
+  input: string
+  output: string
+  expected: string
+  result: string
+  memory: string
+  cpu_time: string
+}
+
 function ProblemsPid() {
+  const api = import.meta.env.VITE_API_URL
   const setBeforeLogin = useBeforeLoginMutators()
   const location = useLocation()
   useEffect(() => {
@@ -39,7 +62,7 @@ function ProblemsPid() {
     author: '',
     problem_id: 0,
     testcase_num: 0,
-    task_ids: [],
+    tasks: [],
     result: 'WJ',
     language_id: -1,
     source: ''
@@ -55,7 +78,6 @@ function ProblemsPid() {
   }
 
   useEffect(() => {
-    const api = import.meta.env.VITE_API_URL
     axios
       .get<Submission>(`${api}/submissions/${params.submission_id}`, {
         withCredentials: true
@@ -74,6 +96,42 @@ function ProblemsPid() {
         }, 2000)
       })
   }, [])
+
+  const [taskLoading, setTaskLoading] = useState(true)
+  const [taskId, setTaskId] = useState(-1)
+  const [task, setTask] = useState({
+    id: -1,
+    submission_id: -1,
+    input: '',
+    output: '',
+    expected: '',
+    result: '',
+    memory: '',
+    cpu_time: ''
+  } as Task)
+  const [taskDetailsOpen, setTaskDetailsOpen] = useState(false)
+  function openTaskDetails(id: number) {
+    console.log(id)
+    setTaskId(id)
+    setTaskLoading(true)
+    setTaskDetailsOpen(true)
+  }
+  useEffect(() => {
+    if (taskId < 0) return
+    axios
+      .get<Task>(`${api}/tasks/${taskId}`, {
+        withCredentials: true
+      })
+      .then((res) => {
+        setTask(res.data)
+        setTaskLoading(false)
+      })
+      .catch((err) => {
+        if (Axios.isAxiosError(err)) console.log(err.status)
+        setTaskLoading(false)
+      })
+  }, [taskId])
+
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
       <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
@@ -96,7 +154,7 @@ function ProblemsPid() {
             ) : (
               <div>
                 <div className="text-xl my-2">Source</div>
-                <div className="px-2 text-base font-mono border rounded shadow flex justify-between">
+                <div className="px-2 text-base font-mono border rounded shadow flex">
                   <CodeBlock
                     text={submission.source}
                     language={codeblockLanguage(submission)}
@@ -114,7 +172,7 @@ function ProblemsPid() {
                   </button>
                 </div>
                 <div className="text-xl my-2">Info</div>
-                <div className="table w-full text-base border rounded shadow flex justify-between">
+                <div className="table w-full text-base border rounded shadow">
                   <div className="table-row-group">
                     <div className="table-cell p-1.5 border">date</div>
                     <div className="table-cell p-1.5 border">
@@ -146,11 +204,98 @@ function ProblemsPid() {
                     </div>
                   </div>
                 </div>
+                <div className="text-xl my-2">Testcases</div>
+                <div className="table w-full text-base border rounded shadow">
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 w-auto border">#</div>
+                    <div className="table-cell p-1.5 w-auto border">result</div>
+                    <div className="table-cell p-2 w-0 block border">
+                      details
+                    </div>
+                  </div>
+
+                  {submission.tasks.map((v: TaskSummary, i) => (
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">#{i}</div>
+                      <div className="table-cell p-1.5 border">{v.result}</div>
+                      <button
+                        type="button"
+                        className="table-cell p-2 mr-0 w-16 block border font-bold text-blue-500 hover:(underline bg-gray-100)"
+                        onClick={() => {
+                          openTaskDetails(v.id)
+                        }}
+                      >
+                        See
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         )}
       </div>
+      <Dialog
+        onClose={() => {
+          setTaskDetailsOpen(false)
+          setTaskId(-1)
+        }}
+        open={taskDetailsOpen}
+        maxWidth="lg"
+        fullWidth
+      >
+        <div className="">
+          <div className="text-xl my-2 m-auto md:max-w-11/12 min-w-xs">
+            <div className="text-2xl my-4 m-2">Task #{taskId}</div>
+
+            {taskLoading ? (
+              <LinearProgress />
+            ) : (
+              <div>
+                <div className="m-2">Input</div>
+                <AceEditor
+                  mode="text"
+                  theme="github"
+                  defaultValue={task.input}
+                  name="sidInput"
+                  width="100%"
+                  readOnly
+                  minLines={5}
+                  maxLines={5}
+                  fontSize={16}
+                  className="m-auto my-2 border-0 border-1 shadow rounded"
+                />
+                <div className="m-2">Output</div>
+                <AceEditor
+                  mode="text"
+                  theme="github"
+                  defaultValue={task.output}
+                  name="sidOutput"
+                  width="100%"
+                  readOnly
+                  minLines={5}
+                  maxLines={5}
+                  fontSize={16}
+                  className="m-auto my-2 border-0 border-1 shadow rounded"
+                />
+                <div className="m-2">Expected</div>
+                <AceEditor
+                  mode="text"
+                  theme="github"
+                  defaultValue={task.expected}
+                  name="sidExpected"
+                  width="100%"
+                  readOnly
+                  minLines={5}
+                  maxLines={5}
+                  fontSize={16}
+                  className="m-auto my-2 border-0 border-1 shadow rounded"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </Dialog>
     </div>
   )
 }
