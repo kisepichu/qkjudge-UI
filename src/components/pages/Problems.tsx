@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
 
 interface Problem {
-  problem_id: number
+  id: number
   title: string
   author: string
   difficulty: number
@@ -41,11 +41,11 @@ function Problems() {
           {problems.length ? (
             problems.map((p) => (
               <Link
-                to={`/problems/${p.problem_id}`}
+                to={`/problems/${p.id}`}
                 className="m-4 flex justify-between p-1 md:p-2 rounded ring-1 shadow-md hover:ring-2"
-                key={p.problem_id}
+                key={p.id}
               >
-                <p className="text-base md:text-xl truncate m-2">{`${p.problem_id}. ${p.title}`}</p>
+                <p className="text-base md:text-xl truncate m-2">{`${p.id}. ${p.title}`}</p>
                 <div className="p-2 flex justify-end divide-x divide-style-dashed">
                   <div className="px-2 flex">
                     <p className="hidden md:block text-sm mb-0 m-auto">
