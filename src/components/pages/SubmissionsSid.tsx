@@ -1,9 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
+import { LinearProgress } from '@mui/material'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { CodeBlock, dracula, github } from 'react-code-blocks'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { Link, useParams } from 'react-router-dom'
+import languages from '../data/Languages'
 
 interface Submission {
   id: number
@@ -13,8 +15,7 @@ interface Submission {
   testcase_num: number
   task_ids: number[]
   result: string
-  language: string
-  language_version: string
+  language_id: number
   source: string
 }
 
@@ -23,6 +24,7 @@ function ProblemsPid() {
   const params = useParams<{
     submission_id: string
   }>()
+  const [loading, setLoading] = useState(true)
   const [submission, setSubmission] = useState<Submission>({
     id: 0,
     date: '0000-00-00 00:00:00',
@@ -31,12 +33,16 @@ function ProblemsPid() {
     testcase_num: 0,
     task_ids: [],
     result: 'WJ',
-    language: '',
-    language_version: '',
+    language_id: -1,
     source: ''
   })
   function copy(content: string) {
     navigator.clipboard.writeText(content)
+  }
+  function codeblockLanguage(s: Submission): String {
+    if (languages[s.language_id]?.language.startsWith('python')) return 'python'
+    if (languages[s.language_id]?.language.startsWith('cpp')) return 'cpp'
+    return 'text'
   }
 
   useEffect(() => {
@@ -47,6 +53,7 @@ function ProblemsPid() {
       })
       .then((res) => {
         setSubmission(res.data)
+        setLoading(false)
       })
   }, [])
   return (
@@ -57,49 +64,61 @@ function ProblemsPid() {
           <div className="mx-1 font-semibold">#</div>
           <div className="font-semibold">{submission.id}</div>
         </div>
-        <div className="text-xl my-2">Source</div>
-        <div className="px-2 text-lg font-mono border rounded shadow flex justify-between">
-          <CodeBlock
-            text={submission.source}
-            language="python"
-            showLineNumbers="true"
-            theme={github}
-          />
-          <button
-            onClick={() => {
-              copy(submission.source)
-            }}
-            type="button"
-            className="text-sm px-1 my-2 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
-          >
-            Copy
-          </button>
-        </div>
-        <div className="text-xl my-2">Info</div>
-        <div className="table w-full text-base border rounded shadow flex justify-between">
-          <div className="table-row-group">
-            <div className="table-cell p-1.5 border">date</div>
-            <div className="table-cell p-1.5 border">{submission.date}</div>
-          </div>
-          <div className="table-row-group">
-            <div className="table-cell p-1.5 border">problem</div>
-            <div className="table-cell p-1.5 border">
-              {submission.problem_id}
+        {loading ? (
+          <LinearProgress />
+        ) : (
+          <div>
+            <div className="text-xl my-2">Source</div>
+            <div className="px-2 text-base font-mono border rounded shadow flex justify-between">
+              <CodeBlock
+                text={submission.source}
+                language={codeblockLanguage(submission)}
+                showLineNumbers="true"
+                theme={github}
+              />
+              <button
+                onClick={() => {
+                  copy(submission.source)
+                }}
+                type="button"
+                className="text-sm px-1 my-2 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
+              >
+                Copy
+              </button>
+            </div>
+            <div className="text-xl my-2">Info</div>
+            <div className="table w-full text-base border rounded shadow flex justify-between">
+              <div className="table-row-group">
+                <div className="table-cell p-1.5 border">date</div>
+                <div className="table-cell p-1.5 border">{submission.date}</div>
+              </div>
+              <div className="table-row-group">
+                <div className="table-cell p-1.5 border">problem</div>
+                <div className="table-cell p-1.5 border">
+                  {submission.problem_id}
+                </div>
+              </div>
+              <div className="table-row-group">
+                <div className="table-cell p-1.5 border">user</div>
+                <div className="table-cell p-1.5 border">
+                  {submission.author}
+                </div>
+              </div>
+              <div className="table-row-group">
+                <div className="table-cell p-1.5 border">language</div>
+                <div className="table-cell p-1.5 border">
+                  {languages[submission.language_id]?.label}
+                </div>
+              </div>
+              <div className="table-row-group">
+                <div className="table-cell p-1.5 border">result</div>
+                <div className="table-cell p-1.5 border">
+                  {submission.result}
+                </div>
+              </div>
             </div>
           </div>
-          <div className="table-row-group">
-            <div className="table-cell p-1.5 border">user</div>
-            <div className="table-cell p-1.5 border">{submission.author}</div>
-          </div>
-          <div className="table-row-group">
-            <div className="table-cell p-1.5 border">language</div>
-            <div className="table-cell p-1.5 border">{submission.language}</div>
-          </div>
-          <div className="table-row-group">
-            <div className="table-cell p-1.5 border">result</div>
-            <div className="table-cell p-1.5 border">{submission.result}</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

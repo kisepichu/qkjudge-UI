@@ -13,7 +13,7 @@ interface LoginState {
 }
 
 function Login() {
-  console.log('Login')
+  // console.log('Login')
   const [usernameInput, setUsernameInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
   const [result, setResult] = useState('')

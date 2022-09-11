@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Outlet } from 'react-router-dom'
+import { LinearProgress } from '@mui/material'
 import { useUserMutators, useUserState } from '../states/userState'
 
 interface GetWhoamiResponse {
@@ -27,7 +28,7 @@ function CheckUser() {
   useEffect(() => {
     check()
   }, [])
-  return loading ? <div /> : <Outlet />
+  return loading ? <LinearProgress /> : <Outlet />
 }
 
 export default CheckUser

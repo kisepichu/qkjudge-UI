@@ -1,3 +1,4 @@
+import { LinearProgress } from '@mui/material'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -56,7 +57,7 @@ function Problems() {
               </Link>
             ))
           ) : (
-            <div>loading...</div>
+            <LinearProgress />
           )}
         </div>
       </div>
