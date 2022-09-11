@@ -152,24 +152,26 @@ function ProblemsPid() {
             {loading ? (
               <LinearProgress />
             ) : (
-              <div>
+              <div className="">
                 <div className="text-xl my-2">Source</div>
-                <div className="px-2 text-base font-mono border rounded shadow flex">
-                  <CodeBlock
-                    text={submission.source}
-                    language={codeblockLanguage(submission)}
-                    showLineNumbers="true"
-                    theme={github}
+                <div className="px-2 text-base font-mono flex min-w-full">
+                  <AceEditor
+                    mode={editor_mode(languages[submission.language_id])}
+                    theme="github"
+                    defaultValue={submission.source}
+                    readOnly
+                    name="sidSource"
+                    width="100%"
+                    // setOptions={{
+                    //   enableBasicAutocompletion: true,
+                    //   enableLiveAutocompletion: true,
+                    //   enableSnippets: true
+                    // }}
+                    minLines={10}
+                    maxLines={30}
+                    fontSize={16}
+                    className="m-auto my-2 border-0 border-1 shadow rounded"
                   />
-                  <button
-                    onClick={() => {
-                      copy(submission.source)
-                    }}
-                    type="button"
-                    className="text-sm px-1 my-2 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
-                  >
-                    Copy
-                  </button>
                 </div>
                 <div className="text-xl my-2">Info</div>
                 <div className="table w-full text-base border rounded shadow">
@@ -207,9 +209,13 @@ function ProblemsPid() {
                 <div className="text-xl my-2">Testcases</div>
                 <div className="table w-full text-base border rounded shadow">
                   <div className="table-row-group">
-                    <div className="table-cell p-1.5 w-auto border">#</div>
-                    <div className="table-cell p-1.5 w-auto border">result</div>
-                    <div className="table-cell p-2 w-0 block border">
+                    <div className="table-cell p-1.5 w-auto border font-bold">
+                      #
+                    </div>
+                    <div className="table-cell p-1.5 w-auto border font-bold">
+                      result
+                    </div>
+                    <div className="table-cell p-2 w-0 block border font-bold">
                       details
                     </div>
                   </div>
@@ -220,7 +226,7 @@ function ProblemsPid() {
                       <div className="table-cell p-1.5 border">{v.result}</div>
                       <button
                         type="button"
-                        className="table-cell p-2 mr-0 w-16 block border font-bold text-blue-500 hover:(underline bg-gray-100)"
+                        className="table-cell p-2 mr-0 w-18 block border font-bold text-blue-500 hover:(underline bg-gray-100)"
                         onClick={() => {
                           openTaskDetails(v.id)
                         }}
