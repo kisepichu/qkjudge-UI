@@ -17,7 +17,7 @@ import {
   MenuItem,
   TextField
 } from '@mui/material'
-import languages, { Language } from '../data/Languages'
+import languages, { editor_mode, Language } from '../data/Languages'
 import {
   useCustomTestSourceMutators,
   useCustomTestSourceState
@@ -113,7 +113,7 @@ function CustomTest() {
         <div className="text-xl my-2 m-auto md:max-w-11/12">
           <div className="m-2">Source</div>
           <AceEditor
-            mode="python"
+            mode={editor_mode(language)}
             theme="github"
             defaultValue={source.source}
             onChange={(s) => {

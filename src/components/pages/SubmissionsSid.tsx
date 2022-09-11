@@ -62,6 +62,7 @@ function ProblemsPid() {
       })
       .then((res) => {
         setSubmission(res.data)
+        setSubmissionNotFound(false)
         setLoading(false)
       })
       .catch((err) => {
