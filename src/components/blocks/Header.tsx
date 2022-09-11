@@ -69,7 +69,7 @@ function Header() {
           component={Link}
           to="/"
           sx={{
-            mr: 2,
+            mx: '0.2rem',
             padding: '1rem',
             fontSize: '18px',
             fontFamily: '"Trebuchet MS", sans-serif',
@@ -77,6 +77,7 @@ function Header() {
             color: 'inherit',
             textDecoration: 'none',
             '@media (min-width: 768px)': {
+              mx: '0rem',
               fontFamily: '"Trebuchet MS", sans-serif',
               fontSize: '24px',
               fontWeight: 700,

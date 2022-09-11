@@ -1,7 +1,8 @@
 import axios from 'axios'
 import Axios from 'axios'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 import { useUserMutators, useUserState } from '../states/userState'
 
 interface From {
@@ -13,7 +14,11 @@ interface LoginState {
 }
 
 function Signup() {
-  // console.log('Login')
+  const setBeforeLogin = useBeforeLoginMutators()
+  useEffect(() => {
+    setBeforeLogin('/')
+  }, [])
+
   const [usernameInput, setUsernameInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
   const [password2Input, setPassword2Input] = useState('')

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Axios from 'axios'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
@@ -18,6 +18,11 @@ import {
   TextField
 } from '@mui/material'
 import languages, { Language } from '../data/Languages'
+import {
+  useCustomTestSourceMutators,
+  useCustomTestSourceState
+} from '../states/customTestSourceState'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 
 interface Problem {
   problem_id: number
@@ -31,8 +36,7 @@ interface GetProblemsResponse {
 }
 
 interface PostExecuteRequest {
-  language: string
-  language_version: string
+  language_id: number
   source: string
   input: string
 }
@@ -44,10 +48,17 @@ interface PostExecuteResponse {
 }
 
 function CustomTest() {
-  // console.log('Problems')
   const api = import.meta.env.VITE_API_URL
+  const setBeforeLogin = useBeforeLoginMutators()
+  const location = useLocation()
+  useEffect(() => {
+    setBeforeLogin(location.pathname)
+  }, [])
+
   const [problems, setProblems] = useState<Problem[]>([])
-  const [source, setSource] = useState('')
+  // const [source, setSource] = useState('')
+  const source = useCustomTestSourceState()
+  const setSource = useCustomTestSourceMutators()
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
   const [language, setLanguage] = useState({
@@ -62,18 +73,16 @@ function CustomTest() {
   function execute() {
     setExecuting(true)
     console.log({
-      language: language.language_code,
-      language_version: language.version_index,
-      source,
+      language_id: language.id,
+      source: source.source,
       input
-    })
+    } as PostExecuteRequest)
     axios
       .post<PostExecuteResponse>(
         `${api}/execute`,
         {
-          language: language.language_code,
-          language_version: language.version_index,
-          source,
+          language_id: language.id,
+          source: source.source,
           input
         } as PostExecuteRequest,
         { withCredentials: true }
@@ -101,11 +110,12 @@ function CustomTest() {
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
       <div className="m-auto p-2 md:p-6 max-w-11/12 shadow-lg bg-light-50">
         <h1 className="text-2xl m-2 mb-3 md:(text-3xl mb-6)">Custom Test</h1>
-        <div className="text-xl m-auto md:max-w-11/12">
+        <div className="text-xl my-2 m-auto md:max-w-11/12">
           <div className="m-2">Source</div>
           <AceEditor
             mode="python"
             theme="github"
+            defaultValue={source.source}
             onChange={(s) => {
               setSource(s)
             }}
@@ -134,7 +144,7 @@ function CustomTest() {
             className="m-auto my-2 border-0 border-1 shadow rounded"
           />
         </div>
-        <div className="flex">
+        <div className="flex text-sm justify-end mt-5 m-auto md:max-w-11/12">
           <Autocomplete
             disablePortal
             id="combo-box-demo"
@@ -154,17 +164,37 @@ function CustomTest() {
               setLanguage(l)
             }}
             options={languages}
-            sx={{ width: 300 }}
+            sx={{ width: 250, height: 30 }}
             renderInput={(params) => <TextField {...params} label="Language" />}
           />
           <div>
-            <button type="submit" onClick={execute}>
+            <button
+              type="submit"
+              onClick={execute}
+              className="text-xl p-3.2 px-4 mt-0.3 my-0 m-2 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
+            >
               Execute
             </button>
           </div>
         </div>
         {executing ? <LinearProgress /> : <div />}
-        <div>{output}</div>
+        <div className="text-xl m-auto md:max-w-11/12">
+          <div className="m-2">Output</div>
+          <AceEditor
+            mode="text"
+            theme="github"
+            onChange={(s) => {
+              setInput(s)
+            }}
+            name="output"
+            defaultValue={output}
+            readOnly
+            width="100%"
+            minLines={5}
+            maxLines={10}
+            className="m-auto my-2 border-0 border-1 shadow rounded"
+          />
+        </div>
       </div>
     </div>
   )
