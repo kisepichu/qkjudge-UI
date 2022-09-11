@@ -1,7 +1,15 @@
 import { Typography } from '@mui/material'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 
 function Home() {
-  // console.log('Home')
+  const setBeforeLogin = useBeforeLoginMutators()
+  const location = useLocation()
+  useEffect(() => {
+    setBeforeLogin(location.pathname)
+  }, [])
+
   return (
     <div>
       <div className="max-w-full bg-local p-16 md:p-64 bg-gradient-to-bl from-heroyellow-100 to-herocyan-100 text-center">

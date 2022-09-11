@@ -1,7 +1,8 @@
 import { LinearProgress } from '@mui/material'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 
 interface Problem {
   problem_id: number
@@ -15,7 +16,12 @@ interface GetProblemsResponse {
 }
 
 function Problems() {
-  // console.log('Problems')
+  const setBeforeLogin = useBeforeLoginMutators()
+  const location = useLocation()
+  useEffect(() => {
+    setBeforeLogin(location.pathname)
+  }, [])
+
   const [problems, setProblems] = useState<Problem[]>([])
 
   useEffect(() => {

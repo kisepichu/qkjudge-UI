@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Axios from 'axios'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
@@ -22,6 +22,7 @@ import {
   useCustomTestSourceMutators,
   useCustomTestSourceState
 } from '../states/customTestSourceState'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 
 interface Problem {
   problem_id: number
@@ -47,8 +48,13 @@ interface PostExecuteResponse {
 }
 
 function CustomTest() {
-  // console.log('Problems')
   const api = import.meta.env.VITE_API_URL
+  const setBeforeLogin = useBeforeLoginMutators()
+  const location = useLocation()
+  useEffect(() => {
+    setBeforeLogin(location.pathname)
+  }, [])
+
   const [problems, setProblems] = useState<Problem[]>([])
   // const [source, setSource] = useState('')
   const source = useCustomTestSourceState()

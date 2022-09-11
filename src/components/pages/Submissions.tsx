@@ -3,8 +3,9 @@ import { LinearProgress } from '@mui/material'
 import axios from 'axios'
 import Axios from 'axios'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import languages from '../data/Languages'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 
 interface Submission {
   id: number
@@ -19,7 +20,12 @@ interface GetSubmissionsResponse {
 }
 
 function Submissions() {
-  // console.log('Submissions')
+  const setBeforeLogin = useBeforeLoginMutators()
+  const location = useLocation()
+  useEffect(() => {
+    setBeforeLogin(location.pathname)
+  }, [])
+
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
 
