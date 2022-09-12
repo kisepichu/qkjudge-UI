@@ -58,12 +58,12 @@ function Submissions() {
     // console.log(pagesNum)
   }, [page])
   return (
-    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
+    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
       <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
         <h1 className="text-2xl mb-3 md:(text-3xl mb-6)">Submissions</h1>
         <div className="table w-2xl text-base m-auto max-w-full md:max-w-11/12 border rounded shadow">
           <div className="table-header-group text-right">
-            <div className="table-row">
+            <div className="table-row bg-orange-100">
               <div className="table-cell border p-2">ID</div>
               <div className="table-cell border p-2">problem</div>
               <div className="table-cell border p-2">user</div>

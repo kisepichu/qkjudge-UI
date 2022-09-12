@@ -156,7 +156,7 @@ function ProblemsPid() {
   }, [taskId])
 
   return (
-    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
+    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
       <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
         {submissionNotFound ? (
           <div>
@@ -215,31 +215,41 @@ function ProblemsPid() {
                 ) : (
                   <div className="table w-full text-base border rounded shadow">
                     <div className="table-row-group">
-                      <div className="table-cell p-1.5 border">date</div>
+                      <div className="table-cell p-1.5 border bg-orange-100">
+                        date
+                      </div>
                       <div className="table-cell p-1.5 border">
                         {submission.date}
                       </div>
                     </div>
                     <div className="table-row-group">
-                      <div className="table-cell p-1.5 border">problem</div>
+                      <div className="table-cell p-1.5 border bg-orange-100">
+                        problem
+                      </div>
                       <div className="table-cell p-1.5 border">
                         {submission.problem_id}
                       </div>
                     </div>
                     <div className="table-row-group">
-                      <div className="table-cell p-1.5 border">user</div>
+                      <div className="table-cell p-1.5 border bg-orange-100">
+                        user
+                      </div>
                       <div className="table-cell p-1.5 border">
                         {submission.author}
                       </div>
                     </div>
                     <div className="table-row-group">
-                      <div className="table-cell p-1.5 border">language</div>
+                      <div className="table-cell p-1.5 border bg-orange-100">
+                        language
+                      </div>
                       <div className="table-cell p-1.5 border">
                         {languages[submission.language_id]?.label}
                       </div>
                     </div>
                     <div className="table-row-group">
-                      <div className="table-cell p-1.5 border">result</div>
+                      <div className="table-cell p-1.5 border bg-orange-100">
+                        result
+                      </div>
                       <div className="table-cell p-1.5 border">
                         {submission.result}
                       </div>
@@ -248,14 +258,12 @@ function ProblemsPid() {
                 )}
                 <div className="text-xl my-2">Testcases</div>
                 <div className="table w-full text-base border rounded shadow">
-                  <div className="table-row-group">
+                  <div className="table-row-group bg-orange-100">
                     <div className="table-cell p-1.5 w-auto border font-bold">
                       #
                     </div>
-                    <div className="table-cell p-1.5 w-auto border font-bold">
-                      result
-                    </div>
-                    <div className="table-cell p-2 w-0 block border font-bold">
+                    <div className="table-cell p-1.5 w-auto border">result</div>
+                    <div className="table-cell p-2 w-0 block border">
                       details
                     </div>
                   </div>
@@ -340,15 +348,21 @@ function ProblemsPid() {
                 <div className="m-2">Info</div>
                 <div className="table w-full text-base border rounded shadow">
                   <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">result</div>
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      result
+                    </div>
                     <div className="table-cell p-1.5 border">{task.result}</div>
                   </div>
                   <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">memory</div>
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      memory
+                    </div>
                     <div className="table-cell p-1.5 border">{task.memory}</div>
                   </div>
                   <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">cpu time</div>
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      cpu time
+                    </div>
                     <div className="table-cell p-1.5 border">
                       {task.cpu_time}
                     </div>
