@@ -2146,10 +2146,10 @@ const languages: Language[] = [
   }
 ]
 
-export function editor_mode(l: Language): String{
-	if (l.language_code.startsWith("python")) return "python"
-	if (l.language_code.startsWith("cpp")) return "cpp"
-	return "text"
+export function editorMode(l: Language): String {
+  if (l.language_code.startsWith('python')) return 'python'
+  if (l.language_code.startsWith('cpp')) return 'c_cpp'
+  return 'text'
 }
 
 export default languages

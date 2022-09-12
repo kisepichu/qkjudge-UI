@@ -14,23 +14,12 @@ import {
   MenuItem,
   TextField
 } from '@mui/material'
-import languages, { editor_mode, Language } from '../data/Languages'
+import languages, { editorMode, Language } from '../data/Languages'
 import {
   useCustomTestSourceMutators,
   useCustomTestSourceState
 } from '../states/customTestSourceState'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
-
-interface Problem {
-  problem_id: number
-  title: string
-  author: string
-  difficulty: number
-}
-
-interface GetProblemsResponse {
-  problems: Problem[]
-}
 
 interface PostExecuteRequest {
   language_id: number
@@ -42,6 +31,9 @@ type AutocompleteOption = Language
 
 interface PostExecuteResponse {
   output: string
+  status_code: number
+  memory: string
+  cpu_time: string
 }
 
 function CustomTest() {
@@ -52,12 +44,16 @@ function CustomTest() {
     setBeforeLogin(location.pathname)
   }, [])
 
-  const [problems, setProblems] = useState<Problem[]>([])
   // const [source, setSource] = useState('')
   const source = useCustomTestSourceState()
   const setSource = useCustomTestSourceMutators()
   const [input, setInput] = useState('')
-  const [output, setOutput] = useState('')
+  const [task, setTask] = useState({
+    output: '',
+    status_code: -1,
+    memory: '-1',
+    cpu_time: '-1'
+  } as PostExecuteResponse)
   const [language, setLanguage] = useState({
     id: 0,
     label: 'C++ 17 / GCC 11.1.0',
@@ -67,8 +63,10 @@ function CustomTest() {
     version_index: '1'
   } as Language)
   const [executing, setExecuting] = useState(false)
+  const [executeLoading, setExecuteLoading] = useState(true)
   function execute() {
     setExecuting(true)
+    setExecuteLoading(true)
     console.log({
       language_id: language.id,
       source: source.source,
@@ -85,10 +83,14 @@ function CustomTest() {
         { withCredentials: true }
       )
       .then((res) => {
-        setOutput(res.data.output)
+        setTask(res.data)
+        console.log(res.data)
         setExecuting(false)
+        setExecuteLoading(false)
       })
       .catch((err) => {
+        setExecuting(false)
+        setExecuteLoading(false)
         if (Axios.isAxiosError(err) && err.response) {
           console.log(err)
         }
@@ -96,11 +98,8 @@ function CustomTest() {
   }
 
   useEffect(() => {
-    axios
-      .get<GetProblemsResponse>(`${api}/problems`, { withCredentials: true })
-      .then((res) => {
-        setProblems(res.data.problems)
-      })
+    console.log(task)
+    console.log(task.output)
   }, [])
 
   return (
@@ -110,13 +109,13 @@ function CustomTest() {
         <div className="text-xl my-2 m-auto md:max-w-11/12">
           <div className="m-2">Source</div>
           <AceEditor
-            mode={editor_mode(language)}
+            mode={editorMode(language)}
             theme="github"
             defaultValue={source.source}
             onChange={(s) => {
               setSource(s)
             }}
-            name="source"
+            name="customTestSource"
             width="100%"
             // setOptions={{
             //   enableBasicAutocompletion: true,
@@ -135,7 +134,7 @@ function CustomTest() {
             onChange={(s) => {
               setInput(s)
             }}
-            name="input"
+            name="customTestInput"
             width="100%"
             minLines={5}
             maxLines={10}
@@ -182,11 +181,8 @@ function CustomTest() {
           <AceEditor
             mode="text"
             theme="github"
-            onChange={(s) => {
-              setInput(s)
-            }}
-            name="output"
-            defaultValue={output}
+            name="customTestOutput"
+            value={task.output}
             readOnly
             width="100%"
             minLines={5}
@@ -195,6 +191,23 @@ function CustomTest() {
             className="m-auto my-2 border-0 border-1 shadow rounded"
           />
         </div>
+        {executeLoading || (
+          <div className="table w-full text-base border rounded shadow">
+            <div className="m-2">Info</div>
+            <div className="table-row-group">
+              <div className="table-cell p-1.5 border">result</div>
+              <div className="table-cell p-1.5 border">NYI</div>
+            </div>
+            <div className="table-row-group">
+              <div className="table-cell p-1.5 border">memory</div>
+              <div className="table-cell p-1.5 border">{task.memory}</div>
+            </div>
+            <div className="table-row-group">
+              <div className="table-cell p-1.5 border">cpu time</div>
+              <div className="table-cell p-1.5 border">{task.cpu_time}</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
