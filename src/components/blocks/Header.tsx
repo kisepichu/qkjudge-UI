@@ -63,7 +63,7 @@ function Header() {
   //   check()
   // }, [])
   return (
-    <header className="flex md:p-1 justify-between border-2 border-gray-200">
+    <header className="flex md:p-1 justify-between border-2 border-gray-200 sticky top-0 bg-white">
       <div className="my-auto">
         <Typography
           variant="h5"
