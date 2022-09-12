@@ -18,7 +18,9 @@ function LoginBlock() {
   const [passwordInput, setPasswordInput] = useState('')
   const [result, setResult] = useState('')
   const setUser = useUserMutators()
+  const beforeLogin = useBeforeLoginState()
   const location = useLocation()
+  const navigate = useNavigate()
   function login() {
     setResult('sending...')
     const url = `${import.meta.env.VITE_API_URL}/user/login`
@@ -37,6 +39,7 @@ function LoginBlock() {
         if (res.status === 200) {
           setUser(usernameSent)
           setResult('')
+          navigate(beforeLogin.pathname)
         }
       })
       .catch((err) => {
@@ -85,7 +88,7 @@ function LoginBlock() {
           <button
             type="submit"
             onClick={login}
-            className=" px-1 mx-0.5 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
+            className=" px-2 p-1 mx-0.5 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
           >
             log in
           </button>
@@ -93,7 +96,7 @@ function LoginBlock() {
       </div>
       <div className="md:(mx-16 w-md) text-base md:text-xl flex justify-end">
         {/* eslint-disable-next-line react/jsx-curly-brace-presence */}
-        <div className="text-sm">{"don't have an account?"}</div>
+        <div className="text-sm">{'または'}</div>
         <Link
           className="mx-3 block text-sm text-blue-500 font-semibold"
           to="/signup"

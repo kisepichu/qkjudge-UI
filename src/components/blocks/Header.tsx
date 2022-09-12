@@ -18,6 +18,7 @@ import { Box, Container } from '@mui/system'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { LoginRounded, PersonAddAltRounded } from '@mui/icons-material'
 import { useUserMutators, useUserState } from '../states/userState'
+import { useBeforeLoginState } from '../states/beforeLogin'
 
 const items = ['Profile', 'Logout']
 const item_guest = ['Sign up', 'Log in']
@@ -36,11 +37,12 @@ function Header() {
   const navigate = useNavigate()
   const user = useUserState()
   const setUser = useUserMutators()
+  const beforeLogin = useBeforeLoginState()
   function logout() {
     const url = `${import.meta.env.VITE_API_URL}/user/logout`
     axios.post(url, { withCredentials: true }).then(() => {
       setUser('')
-      navigate('/')
+      navigate(beforeLogin.pathname)
     })
   }
   // const [loading, setLoading] = useState(true)

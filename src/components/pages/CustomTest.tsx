@@ -182,37 +182,42 @@ function CustomTest() {
             </button>
           </div>
         </div>
-        {executing && <LinearProgress className="max-w-11/12 my-2 m-auto" />}
-        <div className="text-xl m-auto md:max-w-11/12">
-          <div className="m-2">Output</div>
-          <AceEditor
-            mode="text"
-            theme="github"
-            name="customTestOutput"
-            value={task.output}
-            readOnly
-            width="100%"
-            minLines={5}
-            maxLines={10}
-            fontSize={16}
-            className="m-auto my-2 border-0 border-1 shadow rounded"
-          />
-        </div>
-        {executeLoading || (
-          <div className="table m-auto md:max-w-11/12 w-full text-base">
-            <div className="text-xl m-2">Info</div>
-            <div className="table-row-group">
-              <div className="table-cell p-1.5 border">result</div>
-              <div className="table-cell p-1.5 border">{task.result}</div>
+        {executing ? (
+          <LinearProgress className="max-w-11/12 my-2 m-auto" />
+        ) : (
+          <div>
+            <div className="text-xl m-auto md:max-w-11/12">
+              <div className="m-2">Output</div>
+              <AceEditor
+                mode="text"
+                theme="github"
+                name="customTestOutput"
+                value={task.output}
+                readOnly
+                width="100%"
+                minLines={5}
+                maxLines={10}
+                fontSize={16}
+                className="m-auto my-2 border-0 border-1 shadow rounded"
+              />
             </div>
-            <div className="table-row-group">
-              <div className="table-cell p-1.5 border">memory</div>
-              <div className="table-cell p-1.5 border">{task.memory}</div>
-            </div>
-            <div className="table-row-group">
-              <div className="table-cell p-1.5 border">cpu time</div>
-              <div className="table-cell p-1.5 border">{task.cpu_time}</div>
-            </div>
+            {executeLoading || (
+              <div className="table m-auto md:max-w-11/12 w-full text-base rounded">
+                <div className="text-xl m-2">Info</div>
+                <div className="table-row-group">
+                  <div className="table-cell p-1.5 border">result</div>
+                  <div className="table-cell p-1.5 border">{task.result}</div>
+                </div>
+                <div className="table-row-group">
+                  <div className="table-cell p-1.5 border">memory</div>
+                  <div className="table-cell p-1.5 border">{task.memory}</div>
+                </div>
+                <div className="table-row-group">
+                  <div className="table-cell p-1.5 border">cpu time</div>
+                  <div className="table-cell p-1.5 border">{task.cpu_time}</div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
