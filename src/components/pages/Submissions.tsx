@@ -1,9 +1,9 @@
 import { ClassNames } from '@emotion/react'
-import { LinearProgress } from '@mui/material'
+import { LinearProgress, Pagination } from '@mui/material'
 import axios from 'axios'
 import Axios from 'axios'
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import languages from '../data/Languages'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
 
@@ -16,6 +16,7 @@ interface Submission {
 }
 
 interface GetSubmissionsResponse {
+  pages_number: number
   submissions: Submission[]
 }
 
@@ -27,23 +28,35 @@ function Submissions() {
   }, [])
 
   const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [pagesNum, setPagesNum] = useState(1)
   const [loading, setLoading] = useState(true)
+  const { search } = useLocation()
+  const [page, setPage] = useState('1')
+  const queries = new URLSearchParams(search)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
+    const queryPage = queries.get('page')
+    const url = queryPage
+      ? `${api}/submissions?page=${queryPage}`
+      : `${api}/submissions`
+    // console.log(url)
     axios
-      .get<GetSubmissionsResponse>(`${api}/submissions`, {
+      .get<GetSubmissionsResponse>(url, {
         withCredentials: true
       })
       .then((res) => {
         setLoading(false)
+        setPagesNum(res.data.pages_number)
         setSubmissions(res.data.submissions)
       })
       .catch((err) => {
         if (Axios.isAxiosError(err)) console.log(err.status)
         setLoading(false)
       })
-  }, [])
+    // console.log(pagesNum)
+  }, [page])
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
       <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
@@ -84,6 +97,19 @@ function Submissions() {
               </div>
             ))}
           </div>
+        </div>
+        <div className="flex justify-center m-4">
+          <Pagination
+            onChange={(e, p) => {
+              // console.log(p)
+              if (p.toString() !== page) setLoading(true)
+              navigate(`/submissions?page=${p}`)
+              setPage(p.toString())
+            }}
+            count={pagesNum}
+            variant="outlined"
+            color="secondary"
+          />
         </div>
         {loading && (
           <LinearProgress className="w-2xl m-auto max-w-full md:max-w-11/12" />

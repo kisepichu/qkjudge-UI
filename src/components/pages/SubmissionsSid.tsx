@@ -133,7 +133,7 @@ function ProblemsPid() {
   } as Task)
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false)
   function openTaskDetails(id: number, index: number) {
-    console.log(id)
+    // console.log(id)
     setTaskId(id)
     setTaskNumber(index)
     setTaskLoading(true)
@@ -261,7 +261,7 @@ function ProblemsPid() {
                   </div>
 
                   {submission.tasks.map((v: TaskSummary, i) => (
-                    <div className="table-row-group" key={`tasks_${i}`}>
+                    <div className="table-row-group" key={`tasks_${v.id}`}>
                       <div className="table-cell p-1.5 border">#{i}</div>
                       <div className="table-cell p-1.5 border">{v.result}</div>
                       <button
