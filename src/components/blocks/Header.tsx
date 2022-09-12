@@ -63,7 +63,7 @@ function Header() {
   //   check()
   // }, [])
   return (
-    <header className="flex md:p-1 justify-between border-2 border-gray-200 sticky top-0 bg-white">
+    <header className="z-index-10 flex md:p-1 justify-between border-2 border-gray-200 sticky top-0 bg-white">
       <div className="my-auto">
         <Typography
           variant="h5"
@@ -236,7 +236,7 @@ function Header() {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
-            <MenuItem key="profile" onClick={handleCloseUserMenu}>
+            <MenuItem key={user.username} onClick={handleCloseUserMenu}>
               <Typography textAlign="center">Profile</Typography>
             </MenuItem>
             <MenuItem

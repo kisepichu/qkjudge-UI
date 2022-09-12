@@ -79,11 +79,11 @@ function ProblemsPid() {
   const navigate = useNavigate()
   function submit() {
     setSubmitting(true)
-    console.log({
-      problem_id: problem.id,
-      language_id: language.id,
-      source
-    } as PostSubmitRequest)
+    // console.log({
+    //   problem_id: problem.id,
+    //   language_id: language.id,
+    //   source
+    // } as PostSubmitRequest)
     axios
       .post<PostSubmitResponse>(
         `${api}/submit`,
@@ -115,7 +115,7 @@ function ProblemsPid() {
         setLoading(false)
         setProblemNotFound(false)
         setProblem(res.data)
-        console.log(res.data)
+        // console.log(res.data)
       })
       .catch((err) => {
         if (Axios.isAxiosError(err)) console.log(err.status)

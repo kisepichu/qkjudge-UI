@@ -76,11 +76,11 @@ function CustomTest() {
     } as PostExecuteResponse)
     setExecuting(true)
     setExecuteLoading(false)
-    console.log({
-      language_id: language.id,
-      source: source.source,
-      input
-    } as PostExecuteRequest)
+    // console.log({
+    //   language_id: language.id,
+    //   source: source.source,
+    //   input
+    // } as PostExecuteRequest)
     axios
       .post<PostExecuteResponse>(
         `${api}/execute`,
@@ -93,7 +93,7 @@ function CustomTest() {
       )
       .then((res) => {
         setTask(res.data)
-        console.log(res.data)
+        // console.log(res.data)
         setExecuting(false)
       })
       .catch((err) => {
@@ -103,11 +103,6 @@ function CustomTest() {
         }
       })
   }
-
-  useEffect(() => {
-    console.log(task)
-    console.log(task.output)
-  }, [])
 
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
@@ -182,42 +177,37 @@ function CustomTest() {
             </button>
           </div>
         </div>
-        {executing ? (
-          <LinearProgress className="max-w-11/12 my-2 m-auto" />
-        ) : (
-          <div>
-            <div className="text-xl m-auto md:max-w-11/12">
-              <div className="m-2">Output</div>
-              <AceEditor
-                mode="text"
-                theme="github"
-                name="customTestOutput"
-                value={task.output}
-                readOnly
-                width="100%"
-                minLines={5}
-                maxLines={10}
-                fontSize={16}
-                className="m-auto my-2 border-0 border-1 shadow rounded"
-              />
+        {executing && <LinearProgress className="max-w-11/12 my-2 m-auto" />}
+        <div className="text-xl m-auto md:max-w-11/12">
+          <div className="m-2">Output</div>
+          <AceEditor
+            mode="text"
+            theme="github"
+            name="customTestOutput"
+            value={task.output}
+            readOnly
+            width="100%"
+            minLines={5}
+            maxLines={10}
+            fontSize={16}
+            className="m-auto my-2 border-0 border-1 shadow rounded"
+          />
+        </div>
+        {executeLoading || (
+          <div className="table m-auto md:max-w-11/12 w-full text-base">
+            <div className="text-xl m-2">Info</div>
+            <div className="table-row-group">
+              <div className="table-cell p-1.5 border">result</div>
+              <div className="table-cell p-1.5 border">{task.result}</div>
             </div>
-            {executeLoading || (
-              <div className="table m-auto md:max-w-11/12 w-full text-base rounded">
-                <div className="text-xl m-2">Info</div>
-                <div className="table-row-group">
-                  <div className="table-cell p-1.5 border">result</div>
-                  <div className="table-cell p-1.5 border">{task.result}</div>
-                </div>
-                <div className="table-row-group">
-                  <div className="table-cell p-1.5 border">memory</div>
-                  <div className="table-cell p-1.5 border">{task.memory}</div>
-                </div>
-                <div className="table-row-group">
-                  <div className="table-cell p-1.5 border">cpu time</div>
-                  <div className="table-cell p-1.5 border">{task.cpu_time}</div>
-                </div>
-              </div>
-            )}
+            <div className="table-row-group">
+              <div className="table-cell p-1.5 border">memory</div>
+              <div className="table-cell p-1.5 border">{task.memory}</div>
+            </div>
+            <div className="table-row-group">
+              <div className="table-cell p-1.5 border">cpu time</div>
+              <div className="table-cell p-1.5 border">{task.cpu_time}</div>
+            </div>
           </div>
         )}
       </div>
