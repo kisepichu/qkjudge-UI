@@ -4,7 +4,6 @@ import axios from 'axios'
 import Axios from 'axios'
 import { stringify } from 'postcss'
 import { useEffect, useState } from 'react'
-import { CodeBlock, dracula, github } from 'react-code-blocks'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import AceEditor from 'react-ace'
@@ -179,6 +178,7 @@ function ProblemsPid() {
                 <div className="text-xl my-2">Source</div>
                 <div className="px-2 text-base font-mono flex min-w-full">
                   <AceEditor
+                    highlightActiveLine={false}
                     mode={editorMode(languages[submission.language_id])}
                     theme="github"
                     defaultValue={submission.source}
@@ -308,6 +308,7 @@ function ProblemsPid() {
               <div>
                 <div className="m-2">Input</div>
                 <AceEditor
+                  highlightActiveLine={false}
                   mode="text"
                   theme="github"
                   defaultValue={task.input}
@@ -321,6 +322,7 @@ function ProblemsPid() {
                 />
                 <div className="m-2">Output</div>
                 <AceEditor
+                  highlightActiveLine={false}
                   mode="text"
                   theme="github"
                   defaultValue={task.output}
@@ -334,6 +336,7 @@ function ProblemsPid() {
                 />
                 <div className="m-2">Expected</div>
                 <AceEditor
+                  highlightActiveLine={false}
                   mode="text"
                   theme="github"
                   defaultValue={task.expected}
