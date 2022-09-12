@@ -32,6 +32,7 @@ type AutocompleteOption = Language
 interface PostExecuteResponse {
   output: string
   status_code: number
+  result: string
   memory: string
   cpu_time: string
 }
@@ -51,6 +52,7 @@ function CustomTest() {
   const [task, setTask] = useState({
     output: '',
     status_code: -1,
+    result: 'WJ',
     memory: '-1',
     cpu_time: '-1'
   } as PostExecuteResponse)
@@ -65,8 +67,15 @@ function CustomTest() {
   const [executing, setExecuting] = useState(false)
   const [executeLoading, setExecuteLoading] = useState(true)
   function execute() {
+    setTask({
+      output: '',
+      status_code: -1,
+      result: 'WJ',
+      memory: '-1',
+      cpu_time: '-1'
+    } as PostExecuteResponse)
     setExecuting(true)
-    setExecuteLoading(true)
+    setExecuteLoading(false)
     console.log({
       language_id: language.id,
       source: source.source,
@@ -86,11 +95,9 @@ function CustomTest() {
         setTask(res.data)
         console.log(res.data)
         setExecuting(false)
-        setExecuteLoading(false)
       })
       .catch((err) => {
         setExecuting(false)
-        setExecuteLoading(false)
         if (Axios.isAxiosError(err) && err.response) {
           console.log(err)
         }
@@ -175,7 +182,7 @@ function CustomTest() {
             </button>
           </div>
         </div>
-        {executing ? <LinearProgress /> : <div />}
+        {executing && <LinearProgress className="max-w-11/12 my-2 m-auto" />}
         <div className="text-xl m-auto md:max-w-11/12">
           <div className="m-2">Output</div>
           <AceEditor
@@ -192,11 +199,11 @@ function CustomTest() {
           />
         </div>
         {executeLoading || (
-          <div className="table w-full text-base border rounded shadow">
-            <div className="m-2">Info</div>
+          <div className="table m-auto md:max-w-11/12 w-full text-base">
+            <div className="text-xl m-2">Info</div>
             <div className="table-row-group">
               <div className="table-cell p-1.5 border">result</div>
-              <div className="table-cell p-1.5 border">NYI</div>
+              <div className="table-cell p-1.5 border">{task.result}</div>
             </div>
             <div className="table-row-group">
               <div className="table-cell p-1.5 border">memory</div>

@@ -55,6 +55,7 @@ function ProblemsPid() {
     submission_id: string
   }>()
   const [loading, setLoading] = useState(true)
+  const [reloading, setReloading] = useState(false)
   const [submissionNotFound, setSubmissionNotFound] = useState(true)
   const [submission, setSubmission] = useState<Submission>({
     id: 0,
@@ -75,6 +76,26 @@ function ProblemsPid() {
     if (languages[s.language_id]?.language.startsWith('python')) return 'python'
     if (languages[s.language_id]?.language.startsWith('cpp')) return 'cpp'
     return 'text'
+  }
+  function reload() {
+    setReloading(true)
+    axios
+      .get<Submission>(`${api}/submissions/${params.submission_id}`, {
+        withCredentials: true
+      })
+      .then((res) => {
+        setSubmission(res.data)
+        setSubmissionNotFound(false)
+        setReloading(false)
+      })
+      .catch((err) => {
+        if (Axios.isAxiosError(err)) console.log(err.status)
+        setReloading(false)
+        setSubmissionNotFound(true)
+        setTimeout(() => {
+          navigate('/submissions')
+        }, 2000)
+      })
   }
 
   useEffect(() => {
@@ -175,39 +196,56 @@ function ProblemsPid() {
                     className="m-auto my-2 border-0 border-1 shadow rounded"
                   />
                 </div>
-                <div className="text-xl my-2">Info</div>
-                <div className="table w-full text-base border rounded shadow">
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">date</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.date}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">problem</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.problem_id}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">user</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.author}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">language</div>
-                    <div className="table-cell p-1.5 border">
-                      {languages[submission.language_id]?.label}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">result</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.result}
-                    </div>
-                  </div>
+                <div className="flex">
+                  <div className="text-xl my-2">Info</div>
+                  {submission.result.startsWith('WJ') && (
+                    <button
+                      onClick={() => {
+                        reload()
+                      }}
+                      type="button"
+                      className="text-sm px-1 m-2 rounded ring-1 hover:ring-2 active:bg-gray-100"
+                    >
+                      Reload
+                    </button>
+                  )}
                 </div>
+                {reloading ? (
+                  <LinearProgress />
+                ) : (
+                  <div className="table w-full text-base border rounded shadow">
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">date</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.date}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">problem</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.problem_id}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">user</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.author}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">language</div>
+                      <div className="table-cell p-1.5 border">
+                        {languages[submission.language_id]?.label}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">result</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.result}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="text-xl my-2">Testcases</div>
                 <div className="table w-full text-base border rounded shadow">
                   <div className="table-row-group">
