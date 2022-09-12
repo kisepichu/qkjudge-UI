@@ -53,7 +53,7 @@ function Problems() {
                 className="m-4 flex justify-between p-1 md:p-2 rounded ring-1 shadow-md hover:ring-2"
                 key={p.id}
               >
-                <p className="text-base md:text-xl truncate m-2">{`${p.id}. ${p.title}`}</p>
+                <p className="text-base md:text-xl truncate m-2 mx-3">{`${p.title}`}</p>
                 <div className="p-2 flex justify-end divide-x divide-style-dashed">
                   <div className="px-2 flex">
                     <p className="hidden md:block text-sm mb-0 m-auto">

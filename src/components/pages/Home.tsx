@@ -1,6 +1,8 @@
 import { Typography } from '@mui/material'
 import { useEffect } from 'react'
+import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { useLocation } from 'react-router-dom'
+import readme from '../data/Readme'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
 
 function Home() {
@@ -42,7 +44,15 @@ function Home() {
           <p>問題が解けるサイトです。</p>
         </div>
       </div>
-      <div className="m-2">ここに提出結果の意味などの説明を書く</div>
+      <div className="my-5 bg-local">
+        <div className="m-auto p-2 md:p-6 max-w-11/12 shadow bg-cyan-50 text-base md:text-xl">
+          <div className="text-2xl font-bold flex">
+            <div className="font-icon">QK Judge</div>
+            <div className="mx-2"> って?</div>
+          </div>
+          <ReactMarkdown>{readme}</ReactMarkdown>
+        </div>
+      </div>
     </div>
   )
 }

@@ -48,6 +48,7 @@ export default defineConfig({
       fontFamily: {
         sans: ['Segoe UI', 'Dejavu Sans', 'Helvetica Neue', 'sans-serif'],
         jp: "'Ricty Diminished', 'M PLUS Rounded 1c', 'Segoe UI', 'sans-serif'",
+        icon: "'Trebuchet MS', sans-serif",
         serif: ['Merriweather', 'serif'],
         mono: ['Ricty Diminished', 'Consolas', 'monospace']
       }

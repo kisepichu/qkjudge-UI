@@ -146,7 +146,7 @@ function Signup() {
             <button
               type="submit"
               onClick={signup}
-              className=" px-1 mx-0.5 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
+              className=" px-2 p-1 mx-0.5 my-0 mb-auto rounded ring-1 hover:ring-2 active:bg-gray-100"
             >
               sign up
             </button>
