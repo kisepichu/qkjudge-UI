@@ -14,7 +14,7 @@ import { useUserState } from '../states/userState'
 import Login from './Login'
 import LoginBlock from '../blocks/LoginBlock'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
-import languages, { editor_mode, Language } from '../data/Languages'
+import languages, { editorMode, Language } from '../data/Languages'
 
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
@@ -183,7 +183,7 @@ function ProblemsPid() {
                     <div className="text-xl my-2 md:max-w-full">
                       <div className="m-2 text-2xl">Submit</div>
                       <AceEditor
-                        mode={editor_mode(language)}
+                        mode={editorMode(language)}
                         theme="github"
                         onChange={(s) => {
                           setSource(s)

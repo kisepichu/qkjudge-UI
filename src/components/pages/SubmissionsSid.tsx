@@ -8,7 +8,7 @@ import { CodeBlock, dracula, github } from 'react-code-blocks'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import AceEditor from 'react-ace'
-import languages, { editor_mode } from '../data/Languages'
+import languages, { editorMode } from '../data/Languages'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
@@ -55,6 +55,7 @@ function ProblemsPid() {
     submission_id: string
   }>()
   const [loading, setLoading] = useState(true)
+  const [reloading, setReloading] = useState(false)
   const [submissionNotFound, setSubmissionNotFound] = useState(true)
   const [submission, setSubmission] = useState<Submission>({
     id: 0,
@@ -75,6 +76,26 @@ function ProblemsPid() {
     if (languages[s.language_id]?.language.startsWith('python')) return 'python'
     if (languages[s.language_id]?.language.startsWith('cpp')) return 'cpp'
     return 'text'
+  }
+  function reload() {
+    setReloading(true)
+    axios
+      .get<Submission>(`${api}/submissions/${params.submission_id}`, {
+        withCredentials: true
+      })
+      .then((res) => {
+        setSubmission(res.data)
+        setSubmissionNotFound(false)
+        setReloading(false)
+      })
+      .catch((err) => {
+        if (Axios.isAxiosError(err)) console.log(err.status)
+        setReloading(false)
+        setSubmissionNotFound(true)
+        setTimeout(() => {
+          navigate('/submissions')
+        }, 2000)
+      })
   }
 
   useEffect(() => {
@@ -99,6 +120,7 @@ function ProblemsPid() {
 
   const [taskLoading, setTaskLoading] = useState(true)
   const [taskId, setTaskId] = useState(-1)
+  const [taskNumber, setTaskNumber] = useState(-1)
   const [task, setTask] = useState({
     id: -1,
     submission_id: -1,
@@ -110,9 +132,10 @@ function ProblemsPid() {
     cpu_time: ''
   } as Task)
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false)
-  function openTaskDetails(id: number) {
+  function openTaskDetails(id: number, index: number) {
     console.log(id)
     setTaskId(id)
+    setTaskNumber(index)
     setTaskLoading(true)
     setTaskDetailsOpen(true)
   }
@@ -156,7 +179,7 @@ function ProblemsPid() {
                 <div className="text-xl my-2">Source</div>
                 <div className="px-2 text-base font-mono flex min-w-full">
                   <AceEditor
-                    mode={editor_mode(languages[submission.language_id])}
+                    mode={editorMode(languages[submission.language_id])}
                     theme="github"
                     defaultValue={submission.source}
                     readOnly
@@ -173,39 +196,56 @@ function ProblemsPid() {
                     className="m-auto my-2 border-0 border-1 shadow rounded"
                   />
                 </div>
-                <div className="text-xl my-2">Info</div>
-                <div className="table w-full text-base border rounded shadow">
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">date</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.date}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">problem</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.problem_id}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">user</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.author}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">language</div>
-                    <div className="table-cell p-1.5 border">
-                      {languages[submission.language_id]?.label}
-                    </div>
-                  </div>
-                  <div className="table-row-group">
-                    <div className="table-cell p-1.5 border">result</div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.result}
-                    </div>
-                  </div>
+                <div className="flex">
+                  <div className="text-xl my-2">Info</div>
+                  {submission.result.startsWith('WJ') && (
+                    <button
+                      onClick={() => {
+                        reload()
+                      }}
+                      type="button"
+                      className="text-sm px-1 m-2 rounded ring-1 hover:ring-2 active:bg-gray-100"
+                    >
+                      Reload
+                    </button>
+                  )}
                 </div>
+                {reloading ? (
+                  <LinearProgress />
+                ) : (
+                  <div className="table w-full text-base border rounded shadow">
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">date</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.date}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">problem</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.problem_id}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">user</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.author}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">language</div>
+                      <div className="table-cell p-1.5 border">
+                        {languages[submission.language_id]?.label}
+                      </div>
+                    </div>
+                    <div className="table-row-group">
+                      <div className="table-cell p-1.5 border">result</div>
+                      <div className="table-cell p-1.5 border">
+                        {submission.result}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="text-xl my-2">Testcases</div>
                 <div className="table w-full text-base border rounded shadow">
                   <div className="table-row-group">
@@ -221,14 +261,14 @@ function ProblemsPid() {
                   </div>
 
                   {submission.tasks.map((v: TaskSummary, i) => (
-                    <div className="table-row-group">
+                    <div className="table-row-group" key={`tasks_${i}`}>
                       <div className="table-cell p-1.5 border">#{i}</div>
                       <div className="table-cell p-1.5 border">{v.result}</div>
                       <button
                         type="button"
-                        className="table-cell p-2 mr-0 w-18 block border font-bold text-blue-500 hover:(underline bg-gray-100)"
+                        className="table-cell p-2 mr-0 w-18 block border font-bold text-blue-500 hover:(underline bg-gray-100) outline-0"
                         onClick={() => {
-                          openTaskDetails(v.id)
+                          openTaskDetails(v.id, i)
                         }}
                       >
                         See
@@ -252,7 +292,7 @@ function ProblemsPid() {
       >
         <div className="">
           <div className="text-xl my-2 m-auto md:max-w-11/12 min-w-xs">
-            <div className="text-2xl my-4 m-2">Task #{taskId}</div>
+            <div className="text-2xl my-4 m-2">Task #{taskNumber}</div>
 
             {taskLoading ? (
               <LinearProgress />
@@ -297,6 +337,23 @@ function ProblemsPid() {
                   fontSize={16}
                   className="m-auto my-2 border-0 border-1 shadow rounded"
                 />
+                <div className="m-2">Info</div>
+                <div className="table w-full text-base border rounded shadow">
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border">result</div>
+                    <div className="table-cell p-1.5 border">{task.result}</div>
+                  </div>
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border">memory</div>
+                    <div className="table-cell p-1.5 border">{task.memory}</div>
+                  </div>
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border">cpu time</div>
+                    <div className="table-cell p-1.5 border">
+                      {task.cpu_time}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
