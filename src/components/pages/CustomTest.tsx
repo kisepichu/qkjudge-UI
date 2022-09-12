@@ -6,7 +6,7 @@ import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
 import 'ace-builds/src-noconflict/mode-text'
-import 'ace-builds/src-noconflict/theme-chrome'
+import 'ace-builds/src-noconflict/theme-github'
 import {
   Autocomplete,
   LinearProgress,
@@ -113,7 +113,7 @@ function CustomTest() {
           <AceEditor
             highlightActiveLine={false}
             mode={editorMode(language)}
-            theme="chrome"
+            theme="github"
             defaultValue={source.source}
             onChange={(s) => {
               setSource(s)
@@ -134,7 +134,7 @@ function CustomTest() {
           <AceEditor
             highlightActiveLine={false}
             mode="text"
-            theme="chrome"
+            theme="github"
             onChange={(s) => {
               setInput(s)
             }}
@@ -185,7 +185,7 @@ function CustomTest() {
           <AceEditor
             highlightActiveLine={false}
             mode="text"
-            theme="chrome"
+            theme="github"
             name="customTestOutput"
             value={task.output}
             readOnly
