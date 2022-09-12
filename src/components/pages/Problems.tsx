@@ -40,7 +40,7 @@ function Problems() {
   }, [])
 
   return (
-    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
+    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
       <div className="m-auto p-2 md:p-6 max-w-11/12 shadow-lg bg-light-50">
         <h1 className="text-2xl m-2 mb-3 md:(text-3xl mb-6)">Problems</h1>
         <div className="text-xl m-auto md:max-w-11/12">
@@ -50,7 +50,7 @@ function Problems() {
             problems.map((p) => (
               <Link
                 to={`/problems/${p.id}`}
-                className="m-4 flex justify-between p-1 md:p-2 rounded ring-1 shadow-md hover:ring-2"
+                className="m-4 flex justify-between p-1 md:p-2 rounded ring-1 ring-orange-200 shadow-md hover:ring-2"
                 key={p.id}
               >
                 <p className="text-base md:text-xl truncate m-2 mx-3">{`${p.title}`}</p>

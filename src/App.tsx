@@ -11,36 +11,40 @@ import CustomTest from './components/pages/CustomTest'
 import ProblemsPid from './components/pages/ProblemsPid'
 import SubmissionsSid from './components/pages/SubmissionsSid'
 import CheckUser from './components/blocks/CheckUser'
+import Footer from './components/blocks/Footer'
 
 const ROUTER_BASENAME = '/'
 
 function App() {
   return (
-    <div className="">
+    <div className="flex flex-col h-screen justify-between">
       <BrowserRouter basename={ROUTER_BASENAME}>
-        <main>
-          <Routes>
-            <Route element={<CheckUser />}>
-              <Route path="*" element={<Header />} />
-            </Route>
-          </Routes>
-          <div className="max-w-full m-auto">
+        <main className="">
+          <div>
             <Routes>
-              <Route index element={<Home />} />
-              <Route path="/problems" element={<Problems />} />
-              <Route path="/problems/:problem_id" element={<ProblemsPid />} />
-              <Route path="/submissions" element={<Submissions />} />
-              <Route
-                path="/submissions/:submission_id"
-                element={<SubmissionsSid />}
-              />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/custom_test" element={<CustomTest />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="*" element={<NotFound />} />
+              <Route element={<CheckUser />}>
+                <Route path="*" element={<Header />} />
+              </Route>
             </Routes>
+            <div className="max-w-full m-auto">
+              <Routes>
+                <Route index element={<Home />} />
+                <Route path="/problems" element={<Problems />} />
+                <Route path="/problems/:problem_id" element={<ProblemsPid />} />
+                <Route path="/submissions" element={<Submissions />} />
+                <Route
+                  path="/submissions/:submission_id"
+                  element={<SubmissionsSid />}
+                />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/custom_test" element={<CustomTest />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
           </div>
         </main>
+        <Footer />
       </BrowserRouter>
       {/* <div className="px-8 py-6 rounded-2xl bg-gray-600 text-gray-100">
         <p>

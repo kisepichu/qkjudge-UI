@@ -6,7 +6,7 @@ import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
 import 'ace-builds/src-noconflict/mode-text'
-import 'ace-builds/src-noconflict/theme-github'
+import 'ace-builds/src-noconflict/theme-chrome'
 import {
   Autocomplete,
   LinearProgress,
@@ -105,14 +105,15 @@ function CustomTest() {
   }
 
   return (
-    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100">
+    <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
       <div className="m-auto p-2 md:p-6 max-w-11/12 shadow-lg bg-light-50">
         <h1 className="text-2xl m-2 mb-3 md:(text-3xl mb-6)">Custom Test</h1>
         <div className="text-xl my-2 m-auto md:max-w-11/12">
           <div className="m-2">Source</div>
           <AceEditor
+            highlightActiveLine={false}
             mode={editorMode(language)}
-            theme="github"
+            theme="chrome"
             defaultValue={source.source}
             onChange={(s) => {
               setSource(s)
@@ -131,8 +132,9 @@ function CustomTest() {
           />
           <div className="m-2">Input</div>
           <AceEditor
+            highlightActiveLine={false}
             mode="text"
-            theme="github"
+            theme="chrome"
             onChange={(s) => {
               setInput(s)
             }}
@@ -181,8 +183,9 @@ function CustomTest() {
         <div className="text-xl m-auto md:max-w-11/12">
           <div className="m-2">Output</div>
           <AceEditor
+            highlightActiveLine={false}
             mode="text"
-            theme="github"
+            theme="chrome"
             name="customTestOutput"
             value={task.output}
             readOnly
@@ -197,15 +200,21 @@ function CustomTest() {
           <div className="table m-auto md:max-w-11/12 w-full text-base">
             <div className="text-xl m-2">Info</div>
             <div className="table-row-group">
-              <div className="table-cell p-1.5 border">result</div>
+              <div className="table-cell p-1.5 border bg-orange-100">
+                result
+              </div>
               <div className="table-cell p-1.5 border">{task.result}</div>
             </div>
             <div className="table-row-group">
-              <div className="table-cell p-1.5 border">memory</div>
+              <div className="table-cell p-1.5 border bg-orange-100">
+                memory
+              </div>
               <div className="table-cell p-1.5 border">{task.memory}</div>
             </div>
             <div className="table-row-group">
-              <div className="table-cell p-1.5 border">cpu time</div>
+              <div className="table-cell p-1.5 border bg-orange-100">
+                cpu time
+              </div>
               <div className="table-cell p-1.5 border">{task.cpu_time}</div>
             </div>
           </div>
