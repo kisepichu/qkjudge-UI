@@ -12,6 +12,7 @@ import { useBeforeLoginMutators } from '../states/beforeLogin'
 interface Submission {
   id: number
   problem_id: number
+  problem_title: string
   author: string
   result: string
   language_id: number
@@ -84,9 +85,15 @@ function Submissions() {
                 >
                   #{s.id}
                 </Link>
-                <div className="table-cell p-2 w-auto block border">
+                <Link
+                  to={`/problems/${s.problem_id}`}
+                  className="table-cell p-2 w-auto block border font-bold text-blue-500 hover:(underline bg-gray-100)"
+                >
+                  {s.problem_title}
+                </Link>
+                {/* <div className="table-cell p-2 w-auto block border">
                   {s.problem_id}
-                </div>
+                </div> */}
                 <div className="table-cell p-2 w-auto block border">
                   {s.author}
                 </div>
