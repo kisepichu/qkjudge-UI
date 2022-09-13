@@ -78,11 +78,21 @@ function ProblemsPid() {
   }
   function reload() {
     setReloading(true)
+    setSubmission({
+      ...submission,
+      result: '...'
+    })
     axios
       .get<Submission>(`${api}/submissions/${params.submission_id}`, {
         withCredentials: true
       })
       .then((res) => {
+        for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
+          res.data.tasks.push({
+            id: -1,
+            result: res.data.result === 'WJ' ? '(waiting)' : '(aborted)'
+          })
+        }
         setSubmission(res.data)
         setSubmissionNotFound(false)
         setReloading(false)
@@ -103,6 +113,12 @@ function ProblemsPid() {
         withCredentials: true
       })
       .then((res) => {
+        for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
+          res.data.tasks.push({
+            id: -1,
+            result: res.data.result === 'WJ' ? '(waiting)' : '(aborted)'
+          })
+        }
         setSubmission(res.data)
         setSubmissionNotFound(false)
         setLoading(false)
@@ -210,52 +226,50 @@ function ProblemsPid() {
                     </button>
                   )}
                 </div>
-                {reloading ? (
-                  <LinearProgress />
-                ) : (
-                  <div className="table w-full text-base border rounded shadow">
-                    <div className="table-row-group">
-                      <div className="table-cell p-1.5 border bg-orange-100">
-                        date
-                      </div>
-                      <div className="table-cell p-1.5 border">
-                        {submission.date}
-                      </div>
+                {reloading && <LinearProgress />}
+                <div className="table w-full text-base border rounded shadow">
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      date
                     </div>
-                    <div className="table-row-group">
-                      <div className="table-cell p-1.5 border bg-orange-100">
-                        problem
-                      </div>
-                      <div className="table-cell p-1.5 border">
-                        {submission.problem_id}
-                      </div>
-                    </div>
-                    <div className="table-row-group">
-                      <div className="table-cell p-1.5 border bg-orange-100">
-                        user
-                      </div>
-                      <div className="table-cell p-1.5 border">
-                        {submission.author}
-                      </div>
-                    </div>
-                    <div className="table-row-group">
-                      <div className="table-cell p-1.5 border bg-orange-100">
-                        language
-                      </div>
-                      <div className="table-cell p-1.5 border">
-                        {languages[submission.language_id]?.label}
-                      </div>
-                    </div>
-                    <div className="table-row-group">
-                      <div className="table-cell p-1.5 border bg-orange-100">
-                        result
-                      </div>
-                      <div className="table-cell p-1.5 border">
-                        {submission.result}
-                      </div>
+                    <div className="table-cell p-1.5 border">
+                      {submission.date}
                     </div>
                   </div>
-                )}
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      problem
+                    </div>
+                    <div className="table-cell p-1.5 border">
+                      {submission.problem_id}
+                    </div>
+                  </div>
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      user
+                    </div>
+                    <div className="table-cell p-1.5 border">
+                      {submission.author}
+                    </div>
+                  </div>
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      language
+                    </div>
+                    <div className="table-cell p-1.5 border">
+                      {languages[submission.language_id]?.label}
+                    </div>
+                  </div>
+                  <div className="table-row-group">
+                    <div className="table-cell p-1.5 border bg-orange-100">
+                      result
+                    </div>
+                    <div className="table-cell p-1.5 border">
+                      {submission.result}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="text-xl my-2">Testcases</div>
                 <div className="table w-full text-base border rounded shadow">
                   <div className="table-row-group bg-orange-100">
@@ -272,15 +286,21 @@ function ProblemsPid() {
                     <div className="table-row-group" key={`tasks_${v.id}`}>
                       <div className="table-cell p-1.5 border">#{i}</div>
                       <div className="table-cell p-1.5 border">{v.result}</div>
-                      <button
-                        type="button"
-                        className="table-cell p-2 mr-0 w-18 block border font-bold text-blue-500 hover:(underline bg-gray-100) outline-0"
-                        onClick={() => {
-                          openTaskDetails(v.id, i)
-                        }}
-                      >
-                        See
-                      </button>
+                      {v.id < 0 ? (
+                        <div className="text-center table-cell p-2 mr-0 w-18 block border font-bold outline-0">
+                          -
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="table-cell p-2 mr-0 w-18 block border font-bold text-blue-500 hover:(underline bg-gray-100) outline-0"
+                          onClick={() => {
+                            openTaskDetails(v.id, i)
+                          }}
+                        >
+                          See
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
