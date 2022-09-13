@@ -25,6 +25,7 @@ interface Submission {
   date: string
   author: string
   problem_id: number
+  problem_title: string
   testcase_num: number
   tasks: TaskSummary[]
   result: string
@@ -56,18 +57,19 @@ function ProblemsPid() {
   }>()
   const [loading, setLoading] = useState(true)
   const [reloading, setReloading] = useState(false)
-  const [submissionNotFound, setSubmissionNotFound] = useState(true)
-  const [submission, setSubmission] = useState<Submission>({
+  const [submissionNotFound, setSubmissionNotFound] = useState(false)
+  const [submission, setSubmission] = useState({
     id: 0,
     date: '0000-00-00 00:00:00',
     author: '',
     problem_id: 0,
+    problem_title: '',
     testcase_num: 0,
     tasks: [],
     result: 'WJ',
     language_id: -1,
     source: ''
-  })
+  } as Submission)
   const navigate = useNavigate()
   function copy(content: string) {
     navigator.clipboard.writeText(content)
@@ -252,9 +254,12 @@ function ProblemsPid() {
                     <div className="table-cell p-1.5 border bg-orange-100">
                       problem
                     </div>
-                    <div className="table-cell p-1.5 border">
-                      {submission.problem_id}
-                    </div>
+                    <Link
+                      to={`/problems/${submission.problem_id}`}
+                      className="table-cell p-1.5 border font-bold text-blue-500 hover:(underline bg-gray-100)"
+                    >
+                      {submission.problem_title}
+                    </Link>
                   </div>
                   <div className="table-row-group">
                     <div className="table-cell p-1.5 border bg-orange-100">

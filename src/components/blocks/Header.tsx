@@ -177,79 +177,84 @@ function Header() {
             </Link>
           </Drawer>
         </React.Fragment>
-        <Box sx={{ flexGrow: 0 }}>
-          {user.username ? (
-            <Tooltip title={user.username || 'Log in'}>
-              <IconButton
-                onClick={handleOpenUserMenu}
-                sx={{
-                  p: 0,
-                  width: 40,
-                  height: 40,
-                  margin: '12px',
-                  '& svg': {
-                    fontSize: 36
-                  }
-                }}
+        <div className={user.username ? '' : ''}>
+          <Box sx={{ flexGrow: 0 }}>
+            {user.username ? (
+              <Tooltip title={user.username || 'Log in'}>
+                <IconButton
+                  onClick={handleOpenUserMenu}
+                  sx={{
+                    p: 0,
+                    width: 40,
+                    height: 40,
+                    margin: '12px',
+                    '& svg': {
+                      fontSize: 36
+                    }
+                  }}
+                >
+                  <AccountCircleIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip
+                title={user.username || 'Log in'}
+                sx={{ margin: 'auto', marginBottom: '0px' }}
               >
-                <AccountCircleIcon />
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Tooltip title={user.username || 'Log in'}>
-              <IconButton
-                sx={{
-                  p: 0,
-                  width: 40,
-                  height: 40,
-                  margin: '12px',
-                  '& svg': {
-                    fontSize: 36
-                  }
-                }}
-              >
-                <Link to="/login">
-                  <LoginRounded />
-                </Link>
-              </IconButton>
-            </Tooltip>
-          )}
+                <IconButton
+                  sx={{
+                    p: 0,
+                    width: 40,
+                    height: 40,
+                    margin: '12px',
+                    '& svg': {
+                      fontSize: 36
+                    }
+                  }}
+                >
+                  <Link to="/login" className="m-0 p-0 flex justify-between">
+                    <LoginRounded />
+                  </Link>
+                </IconButton>
+              </Tooltip>
+            )}
 
-          <Menu
-            sx={{
-              mt: '24px',
-              '@media (min-width: 768px)': {
-                mt: '45px'
-              }
-            }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right'
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right'
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            {/* <MenuItem key={user.username} onClick={handleCloseUserMenu}>
+            <Menu
+              sx={{
+                mt: '24px',
+                '@media (min-width: 768px)': {
+                  mt: '45px'
+                }
+              }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right'
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right'
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              {/* <MenuItem key={user.username} onClick={handleCloseUserMenu}>
               <Typography textAlign="center">Profile</Typography>
             </MenuItem> */}
-            <MenuItem
-              key="logout"
-              onClick={() => {
-                handleCloseUserMenu()
-                logout()
-              }}
-            >
-              <Typography textAlign="center">Logout</Typography>
-            </MenuItem>
-          </Menu>
-        </Box>
+              <MenuItem
+                key="logout"
+                onClick={() => {
+                  handleCloseUserMenu()
+                  logout()
+                }}
+              >
+                <Typography textAlign="center">Logout</Typography>
+              </MenuItem>
+            </Menu>
+          </Box>
+        </div>
       </div>
     </header>
   )
