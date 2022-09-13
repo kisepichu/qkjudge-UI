@@ -30,6 +30,8 @@ interface Problem {
   author: string
   difficulty: number
   statement: string
+  time_limit: string
+  memory_limit: string
 }
 
 interface PostSubmitRequest {
@@ -60,7 +62,9 @@ function ProblemsPid() {
     title: '',
     author: '',
     difficulty: 0,
-    statement: ''
+    statement: '',
+    time_limit: '',
+    memory_limit: ''
   })
   const [source, setSource] = useState('')
   const [language, setLanguage] = useState({
@@ -126,7 +130,9 @@ function ProblemsPid() {
           title: '',
           author: '',
           difficulty: 0,
-          statement: ''
+          statement: '',
+          time_limit: '',
+          memory_limit: ''
         })
         setTimeout(() => {
           navigate('/problems')
@@ -147,7 +153,22 @@ function ProblemsPid() {
               <LinearProgress />
             ) : (
               <div>
-                <h1 className="text-3xl mb-6 font-semibold">{problem.title}</h1>
+                <div className="flex justify-between text-base">
+                  <h1 className="text-3xl mb-6 font-semibold">
+                    {problem.title}
+                  </h1>
+                  <div className="flex">
+                    <div className="mx-2  my-auto">
+                      作問者: {problem.author}
+                    </div>
+                    <div className="mx-2  my-auto">
+                      実行時間制限: {problem.time_limit} s
+                    </div>
+                    <div className="mx-2 my-auto">
+                      メモリ制限: {problem.memory_limit} KB
+                    </div>
+                  </div>
+                </div>
                 <div className="text-lg">
                   <ReactMarkdown
                     remarkPlugins={[remarkMath]}

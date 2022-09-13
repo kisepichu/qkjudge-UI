@@ -97,6 +97,13 @@ function CustomTest() {
         setExecuting(false)
       })
       .catch((err) => {
+        setTask({
+          output: '',
+          status_code: -1,
+          result: 'UE',
+          memory: '-1',
+          cpu_time: '-1'
+        } as PostExecuteResponse)
         setExecuting(false)
         if (Axios.isAxiosError(err) && err.response) {
           console.log(err)
@@ -180,22 +187,24 @@ function CustomTest() {
           </div>
         </div>
         {executing && <LinearProgress className="max-w-11/12 my-2 m-auto" />}
-        <div className="text-xl m-auto md:max-w-11/12">
-          <div className="m-2">Output</div>
-          <AceEditor
-            highlightActiveLine={false}
-            mode="text"
-            theme="github"
-            name="customTestOutput"
-            value={task.output}
-            readOnly
-            width="100%"
-            minLines={5}
-            maxLines={10}
-            fontSize={16}
-            className="m-auto my-2 border-0 border-1 shadow rounded"
-          />
-        </div>
+        {executeLoading || (
+          <div className="text-xl m-auto md:max-w-11/12">
+            <div className="m-2">Output</div>
+            <AceEditor
+              highlightActiveLine={false}
+              mode="text"
+              theme="github"
+              name="customTestOutput"
+              value={task.output}
+              readOnly
+              width="100%"
+              minLines={5}
+              maxLines={10}
+              fontSize={16}
+              className="m-auto my-2 border-0 border-1 shadow rounded"
+            />
+          </div>
+        )}
         {executeLoading || (
           <div className="table m-auto md:max-w-11/12 w-full text-base">
             <div className="text-xl m-2">Info</div>
@@ -209,13 +218,13 @@ function CustomTest() {
               <div className="table-cell p-1.5 border bg-orange-100">
                 memory
               </div>
-              <div className="table-cell p-1.5 border">{task.memory}</div>
+              <div className="table-cell p-1.5 border">{task.memory} KB</div>
             </div>
             <div className="table-row-group">
               <div className="table-cell p-1.5 border bg-orange-100">
                 cpu time
               </div>
-              <div className="table-cell p-1.5 border">{task.cpu_time}</div>
+              <div className="table-cell p-1.5 border">{task.cpu_time} s</div>
             </div>
           </div>
         )}
