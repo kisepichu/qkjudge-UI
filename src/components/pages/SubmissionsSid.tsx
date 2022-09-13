@@ -87,10 +87,11 @@ function ProblemsPid() {
         withCredentials: true
       })
       .then((res) => {
+        console.log(res.data.result)
         for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
           res.data.tasks.push({
             id: -1,
-            result: res.data.result === 'WJ' ? '(waiting)' : '(aborted)'
+            result: res.data.result.startsWith('WJ') ? '(waiting)' : '(aborted)'
           })
         }
         setSubmission(res.data)
@@ -116,7 +117,7 @@ function ProblemsPid() {
         for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
           res.data.tasks.push({
             id: -1,
-            result: res.data.result === 'WJ' ? '(waiting)' : '(aborted)'
+            result: res.data.result.startsWith('WJ') ? '(waiting)' : '(aborted)'
           })
         }
         setSubmission(res.data)
@@ -143,8 +144,8 @@ function ProblemsPid() {
     output: '',
     expected: '',
     result: '',
-    memory: '',
-    cpu_time: ''
+    memory: '-1',
+    cpu_time: '-1'
   } as Task)
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false)
   function openTaskDetails(id: number, index: number) {
@@ -167,6 +168,16 @@ function ProblemsPid() {
       .catch((err) => {
         if (Axios.isAxiosError(err)) console.log(err.status)
         setTaskLoading(false)
+        setTask({
+          id: -1,
+          submission_id: submission.id,
+          input: '',
+          output: '',
+          expected: '',
+          result: 'UE',
+          memory: '-1',
+          cpu_time: '-1'
+        } as Task)
       })
   }, [taskId])
 
@@ -283,7 +294,8 @@ function ProblemsPid() {
                   </div>
 
                   {submission.tasks.map((v: TaskSummary, i) => (
-                    <div className="table-row-group" key={`tasks_${v.id}`}>
+                    // eslint-disable-next-line react/no-array-index-key
+                    <div className="table-row-group" key={`tasks_${i}_${v.id}`}>
                       <div className="table-cell p-1.5 border">#{i}</div>
                       <div className="table-cell p-1.5 border">{v.result}</div>
                       {v.id < 0 ? (
@@ -380,14 +392,16 @@ function ProblemsPid() {
                     <div className="table-cell p-1.5 border bg-orange-100">
                       memory
                     </div>
-                    <div className="table-cell p-1.5 border">{task.memory}</div>
+                    <div className="table-cell p-1.5 border">
+                      {task.memory} KB
+                    </div>
                   </div>
                   <div className="table-row-group">
                     <div className="table-cell p-1.5 border bg-orange-100">
                       cpu time
                     </div>
                     <div className="table-cell p-1.5 border">
-                      {task.cpu_time}
+                      {task.cpu_time} s
                     </div>
                   </div>
                 </div>
