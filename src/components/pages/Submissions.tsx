@@ -2,8 +2,10 @@ import { ClassNames } from '@emotion/react'
 import { LinearProgress, Pagination } from '@mui/material'
 import axios from 'axios'
 import Axios from 'axios'
+import { Result } from 'postcss'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import ResultCode from '../blocks/ResultCode'
 import languages from '../data/Languages'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
 
@@ -67,7 +69,7 @@ function Submissions() {
               <div className="table-cell border p-2">ID</div>
               <div className="table-cell border p-2">problem</div>
               <div className="table-cell border p-2">user</div>
-              <div className="table-cell border p-2">result</div>
+              <div className="table-cell text-center border p-2">result</div>
               <div className="table-cell border p-2 hidden md:block">
                 language
               </div>
@@ -89,7 +91,7 @@ function Submissions() {
                   {s.author}
                 </div>
                 <div className="table-cell p-2 w-auto block border">
-                  {s.result}
+                  <ResultCode code={s.result} />
                 </div>
                 <div className="table-cell p-2 w-auto block border hidden md:block">
                   {languages[s.language_id].label}

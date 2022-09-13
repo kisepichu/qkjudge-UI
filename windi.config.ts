@@ -42,6 +42,18 @@ export default defineConfig({
       },
       heroyellow: {
         100: '#FCFFF5'
+      },
+      wj: {
+        100: '#777'
+      },
+      ok: {
+        100: '#5cb85c'
+      },
+      ng: {
+        100: '#f0ad4e'
+      },
+      err: {
+        100: '#d9534f'
       }
     },
     extend: {

@@ -20,6 +20,7 @@ import {
   useCustomTestSourceState
 } from '../states/customTestSourceState'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
+import ResultCode from '../blocks/ResultCode'
 
 interface PostExecuteRequest {
   language_id: number
@@ -212,7 +213,9 @@ function CustomTest() {
               <div className="table-cell p-1.5 border bg-orange-100">
                 result
               </div>
-              <div className="table-cell p-1.5 border">{task.result}</div>
+              <div className="table-cell p-1.5 border">
+                <ResultCode code={task.result} />
+              </div>
             </div>
             <div className="table-row-group">
               <div className="table-cell p-1.5 border bg-orange-100">

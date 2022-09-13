@@ -236,9 +236,9 @@ function Header() {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
-            <MenuItem key={user.username} onClick={handleCloseUserMenu}>
+            {/* <MenuItem key={user.username} onClick={handleCloseUserMenu}>
               <Typography textAlign="center">Profile</Typography>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem
               key="logout"
               onClick={() => {
