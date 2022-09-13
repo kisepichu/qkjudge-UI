@@ -80,6 +80,7 @@ function ProblemsPid() {
     navigator.clipboard.writeText(content)
   }
   const [submitting, setSubmitting] = useState(false)
+  const [message, setMessage] = useState('')
   const navigate = useNavigate()
   function submit() {
     setSubmitting(true)
@@ -103,8 +104,11 @@ function ProblemsPid() {
         navigate(`/submissions/${res.data.id}`)
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err) && err.response) {
-          console.log(err)
+        setSubmitting(false)
+        if (Axios.isAxiosError(err) && err.response && err.response.status) {
+          setMessage(`submit failed: ${err.response.status}`)
+        } else {
+          setMessage('submit failed')
         }
       })
   }
@@ -259,6 +263,7 @@ function ProblemsPid() {
                       </div>
                     </div>
                     {submitting ? <LinearProgress /> : <div />}
+                    {message && <div className="text-right m-3">{message}</div>}
                   </div>
                 ) : (
                   <div className="m-auto py-4 md:max-w-1/2">

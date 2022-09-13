@@ -13,6 +13,7 @@ import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
 import 'ace-builds/src-noconflict/mode-text'
 import 'ace-builds/src-noconflict/theme-github'
+import ResultCode from '../blocks/ResultCode'
 
 interface TaskSummary {
   id: number
@@ -91,7 +92,7 @@ function ProblemsPid() {
         for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
           res.data.tasks.push({
             id: -1,
-            result: res.data.result.startsWith('WJ') ? '(waiting)' : '(aborted)'
+            result: res.data.result.startsWith('WJ') ? 'WJ' : 'AB'
           })
         }
         setSubmission(res.data)
@@ -117,7 +118,7 @@ function ProblemsPid() {
         for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
           res.data.tasks.push({
             id: -1,
-            result: res.data.result.startsWith('WJ') ? '(waiting)' : '(aborted)'
+            result: res.data.result.startsWith('WJ') ? 'WJ' : 'AB'
           })
         }
         setSubmission(res.data)
@@ -276,7 +277,7 @@ function ProblemsPid() {
                       result
                     </div>
                     <div className="table-cell p-1.5 border">
-                      {submission.result}
+                      <ResultCode code={submission.result} />
                     </div>
                   </div>
                 </div>
@@ -287,7 +288,9 @@ function ProblemsPid() {
                     <div className="table-cell p-1.5 w-auto border font-bold">
                       #
                     </div>
-                    <div className="table-cell p-1.5 w-auto border">result</div>
+                    <div className="table-cell p-1.5 w-auto border text-center ">
+                      result
+                    </div>
                     <div className="table-cell p-2 w-0 block border">
                       details
                     </div>
@@ -297,7 +300,9 @@ function ProblemsPid() {
                     // eslint-disable-next-line react/no-array-index-key
                     <div className="table-row-group" key={`tasks_${i}_${v.id}`}>
                       <div className="table-cell p-1.5 border">#{i}</div>
-                      <div className="table-cell p-1.5 border">{v.result}</div>
+                      <div className="table-cell p-1.5 border">
+                        <ResultCode code={v.result} />
+                      </div>
                       {v.id < 0 ? (
                         <div className="text-center table-cell p-2 mr-0 w-18 block border font-bold outline-0">
                           -
