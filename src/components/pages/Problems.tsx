@@ -2,13 +2,17 @@ import { LinearProgress } from '@mui/material'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import ResultCode from '../blocks/ResultCode'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
+import { useUserState } from '../states/userState'
 
 interface Problem {
   id: number
   title: string
   author: string
   difficulty: number
+  status: string
+  last_submission: number
 }
 
 interface GetProblemsResponse {
@@ -18,6 +22,7 @@ interface GetProblemsResponse {
 function Problems() {
   const setBeforeLogin = useBeforeLoginMutators()
   const location = useLocation()
+  const user = useUserState()
   useEffect(() => {
     setBeforeLogin(location.pathname)
   }, [])
@@ -37,7 +42,7 @@ function Problems() {
         console.log(err)
         setLoading(true)
       })
-  }, [])
+  }, [user])
 
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
@@ -53,7 +58,23 @@ function Problems() {
                 className="m-4 flex justify-between p-1 md:p-2 rounded ring-1 ring-orange-200 shadow-md hover:ring-2"
                 key={p.id}
               >
-                <p className="text-base md:text-xl truncate m-2 mx-3">{`${p.title}`}</p>
+                <div className="truncate flex">
+                  <p className="text-base md:text-xl m-2 mx-3 truncate">{`${p.title}`}</p>
+
+                  <div className="m-auto">
+                    {(() => {
+                      // console.log(p.status)
+                      if (p.status === 'Accepted') {
+                        return <ResultCode code="CP" />
+                      }
+                      if (p.status === 'NotAccepted') {
+                        return <ResultCode code="NA" />
+                      }
+                      return <div />
+                    })()}
+                  </div>
+                </div>
+
                 <div className="p-2 flex justify-end divide-x divide-style-dashed">
                   <div className="px-2 flex">
                     <p className="hidden md:block text-sm mb-0 m-auto">
