@@ -37,6 +37,10 @@ function ResultCode(props: Props) {
     {
       code: 'OK',
       message: 'オーケー'
+    },
+    {
+      code: 'CP',
+      message: '以前に AC しました'
     }
   ]
   const ngs = [
@@ -59,6 +63,10 @@ function ResultCode(props: Props) {
     {
       code: 'CE',
       message: 'コンパイルエラーです'
+    },
+    {
+      code: 'NA',
+      message: '以前に提出しました'
     }
   ]
   const errors = [
@@ -83,12 +91,14 @@ function ResultCode(props: Props) {
   ]
   useEffect(() => {
     for (const ok of oks) {
+      setAdditional('')
       if (props.code.startsWith(ok.code)) {
         setBg('bg-ok-100')
         setResult(ok)
       }
     }
     for (const ng of ngs) {
+      setAdditional('')
       if (props.code.startsWith(ng.code)) {
         setBg('bg-ng-100')
         setResult(ng)
@@ -99,6 +109,8 @@ function ResultCode(props: Props) {
         setBg('bg-err-100')
         if (err.code === 'UE') {
           setAdditional(props.code.split(' ')[1])
+        } else {
+          setAdditional('')
         }
         setResult(err)
       }
@@ -107,6 +119,11 @@ function ResultCode(props: Props) {
       if (props.code.startsWith(wj.code)) {
         setBg('bg-wj-100')
         setResult(wj)
+        if (wj.code === 'WJ' && props.code.split(' ')[1]) {
+          setAdditional(props.code.split(' ')[1])
+        } else {
+          setAdditional('')
+        }
       }
     }
   }, [props.code])
