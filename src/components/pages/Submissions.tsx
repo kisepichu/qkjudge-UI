@@ -35,8 +35,17 @@ function Submissions() {
   const [loading, setLoading] = useState(true)
   const { search } = useLocation()
   const [page, setPage] = useState('1')
+  const [defaultPage, setDefaultPage] = useState(1)
   const queries = new URLSearchParams(search)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const queryPage = queries.get('page')
+
+    if (queryPage) {
+      setDefaultPage(Number(queryPage))
+    }
+  }, [])
 
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
@@ -114,7 +123,9 @@ function Submissions() {
               if (p.toString() !== page) setLoading(true)
               navigate(`/submissions?page=${p}`)
               setPage(p.toString())
+              setDefaultPage(p)
             }}
+            page={defaultPage}
             count={pagesNum}
             variant="outlined"
             color="secondary"

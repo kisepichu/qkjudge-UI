@@ -296,7 +296,7 @@ function ProblemsPid() {
                     <div className="table-cell p-1.5 w-auto border text-center ">
                       result
                     </div>
-                    <div className="table-cell p-2 w-0 block border">
+                    <div className="table-cell p-2 w-0 block border text-center">
                       details
                     </div>
                   </div>
@@ -396,7 +396,9 @@ function ProblemsPid() {
                     <div className="table-cell p-1.5 border bg-orange-100">
                       result
                     </div>
-                    <div className="table-cell p-1.5 border">{task.result}</div>
+                    <div className="table-cell p-1.5 border">
+                      <ResultCode code={task.result} />
+                    </div>
                   </div>
                   <div className="table-row-group">
                     <div className="table-cell p-1.5 border bg-orange-100">

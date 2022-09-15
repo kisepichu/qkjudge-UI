@@ -49,6 +49,10 @@ function ResultCode(props: Props) {
       message: '不正解またはランタイムエラーです'
     },
     {
+      code: 'RE',
+      message: 'ランタイムエラーです'
+    },
+    {
       code: 'TLE',
       message: '実行時間制限超過です'
     },
@@ -65,14 +69,15 @@ function ResultCode(props: Props) {
       message: 'コンパイルエラーです'
     },
     {
-      code: 'NA',
+      code: 'NC',
       message: '以前に提出しました'
     }
   ]
   const errors = [
     {
       code: 'KK',
-      message: '今日はやる気がありません。明日朝 9 時以降にまた起きます。'
+      message:
+        '外部アプリの制限により実行できません。明日朝 9 時にまた試してください'
     },
     {
       code: 'UE',

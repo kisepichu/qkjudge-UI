@@ -48,7 +48,7 @@ function Home() {
         <div className="m-auto p-3 md:p-6 max-w-11/12 shadow bg-orange-100 text-base md:text-xl">
           <div className="text-2xl font-bold flex">
             <div className="font-icon">QK Judge</div>
-            <div className="mx-2"> って?</div>
+            <div className="mx-2 mb-0 m-auto text-lg font-normal">WIP</div>
           </div>
           <ReactMarkdown>{readme}</ReactMarkdown>
         </div>
