@@ -121,39 +121,36 @@ function ProblemsPid() {
     }
     setLoading(true)
     axios
-      .options(`${api}/submissions/${params.submission_id}`, {
-        withCredentials: true
+      .put(`${api}/submissions/${params.submission_id}`, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       })
       .then(() => {
-        axios
-          .put(`${api}/submissions/${params.submission_id}`, {
-            withCredentials: true
-          })
-          .then(() => {
-            setSubmissionNotFound(false)
-            setLoading(false)
-            const tasks: Task[] = []
-            for (let i = 0; i < submission.testcase_num; i += 1) {
-              tasks.push({
-                id: -1,
-                result: 'WJ'
-              } as Task)
-            }
-            setSubmission({
-              ...submission,
-              tasks
-            })
-            reload()
-          })
-          .catch((err) => {
-            console.log('bu')
-            if (Axios.isAxiosError(err)) console.log(err)
-            setLoading(false)
-            // setSubmissionNotFound(true)
-            // setTimeout(() => {
-            //   navigate('/submissions')
-            // }, 2000)
-          })
+        setSubmissionNotFound(false)
+        setLoading(false)
+        const tasks: Task[] = []
+        for (let i = 0; i < submission.testcase_num; i += 1) {
+          tasks.push({
+            id: -1,
+            result: 'WJ'
+          } as Task)
+        }
+        setSubmission({
+          ...submission,
+          tasks
+        })
+        reload()
+      })
+      .catch((err) => {
+        console.log('bu')
+        if (Axios.isAxiosError(err)) console.log(err)
+        setLoading(false)
+        // setSubmissionNotFound(true)
+        // setTimeout(() => {
+        //   navigate('/submissions')
+        // }, 2000)
       })
   }
 
