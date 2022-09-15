@@ -14,6 +14,7 @@ import 'ace-builds/src-noconflict/mode-c_cpp'
 import 'ace-builds/src-noconflict/mode-text'
 import 'ace-builds/src-noconflict/theme-github'
 import ResultCode from '../blocks/ResultCode'
+import { useUserState } from '../states/userState'
 
 interface TaskSummary {
   id: number
@@ -51,6 +52,7 @@ function ProblemsPid() {
   useEffect(() => {
     setBeforeLogin(location.pathname)
   }, [])
+  const user = useUserState()
 
   const params = useParams<{
     submission_id: string
@@ -104,6 +106,38 @@ function ProblemsPid() {
       .catch((err) => {
         if (Axios.isAxiosError(err)) console.log(err.status)
         setReloading(false)
+        setSubmissionNotFound(true)
+        setTimeout(() => {
+          navigate('/submissions')
+        }, 2000)
+      })
+  }
+  function rejudge() {
+    setLoading(true)
+    axios
+      .put(`${api}/submissions/${params.submission_id}`, {
+        withCredentials: true
+      })
+      .then(() => {
+        setSubmissionNotFound(false)
+        setLoading(false)
+        const tasks: Task[] = []
+        for (let i = 0; i < submission.testcase_num; i += 1) {
+          tasks.push({
+            id: -1,
+            result: 'WJ'
+          } as Task)
+        }
+        setSubmission({
+          ...submission,
+          tasks
+        })
+        reload()
+      })
+      .catch((err) => {
+        console.log('bu')
+        if (Axios.isAxiosError(err)) console.log(err.status)
+        setLoading(false)
         setSubmissionNotFound(true)
         setTimeout(() => {
           navigate('/submissions')
@@ -200,6 +234,17 @@ function ProblemsPid() {
               <div className="mx-2">Submission </div>
               <div className="mx-1 font-semibold">#</div>
               <div className="font-semibold">{submission.id}</div>
+              {submission.author === user.username && (
+                <button
+                  onClick={() => {
+                    rejudge()
+                  }}
+                  type="button"
+                  className="text-sm px-1 m-2 rounded ring-1 hover:ring-2 active:bg-gray-100"
+                >
+                  Rejudge
+                </button>
+              )}
             </div>
             {loading ? (
               <LinearProgress />
