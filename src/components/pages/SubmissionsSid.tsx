@@ -142,12 +142,12 @@ function ProblemsPid() {
       })
       .catch((err) => {
         console.log('bu')
-        if (Axios.isAxiosError(err)) console.log(err.status)
+        if (Axios.isAxiosError(err)) console.log(err)
         setLoading(false)
-        setSubmissionNotFound(true)
-        setTimeout(() => {
-          navigate('/submissions')
-        }, 2000)
+        // setSubmissionNotFound(true)
+        // setTimeout(() => {
+        //   navigate('/submissions')
+        // }, 2000)
       })
   }
 

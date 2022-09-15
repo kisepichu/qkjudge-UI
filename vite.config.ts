@@ -9,8 +9,8 @@ export default defineConfig({
   server: {
     proxy: {
       '^/qkjudge/api/.*': {
-        // target: 'https://tqk.trap.show/qkjudge/',
-        target: 'https://dev_tqk_qkjudge.trap.games/',
+        target: 'https://tqk.trap.show/qkjudge/',
+        // target: 'https://dev_tqk_qkjudge.trap.games/',
         changeOrigin: true,
         rewrite(path) {
           return path.replace(/^\/qkjudge\/api/, '')
