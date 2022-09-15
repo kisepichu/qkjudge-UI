@@ -157,11 +157,16 @@ function ProblemsPid() {
               <LinearProgress />
             ) : (
               <div>
-                <div className="flex justify-between text-base">
+                <div className="md:flex justify-between text-base">
                   <h1 className="text-3xl mb-6 font-semibold">
                     {problem.title}
                   </h1>
-                  <div className="flex">
+                  <div className="md:flex">
+                    <div className="mx-2  my-auto flex">
+                      <div>difficulty: </div>
+                      <div className="ml-1 text-sm mb-0 my-auto">★</div>
+                      <div>{problem.difficulty}</div>
+                    </div>
                     <div className="mx-2  my-auto">
                       作問者: {problem.author}
                     </div>

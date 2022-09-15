@@ -68,7 +68,7 @@ function Problems() {
                         return <ResultCode code="CP" />
                       }
                       if (p.status === 'NotAccepted') {
-                        return <ResultCode code="NA" />
+                        return <ResultCode code="NC" />
                       }
                       return <div />
                     })()}
