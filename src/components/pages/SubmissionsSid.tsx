@@ -113,6 +113,12 @@ function ProblemsPid() {
       })
   }
   function rejudge() {
+    if (submission.result === 'AC') {
+      const ok = confirm(
+        '今 AC ですがリジャッジしていいですか? (ジャッジのエラーが起きている時などに、AC が消えます)(そうなったらまたリジャッジしてください))'
+      )
+      if (!ok) return
+    }
     setLoading(true)
     axios
       .put(`${api}/submissions/${params.submission_id}`, {
