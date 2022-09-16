@@ -119,6 +119,15 @@ function ProblemsPid() {
       )
       if (!ok) return
     }
+    console.log(submission.result)
+    if (
+      submission.result.startsWith('WJ') ||
+      submission.result === '...' ||
+      submission.result === ''
+    ) {
+      console.log('judging')
+      return
+    }
     setLoading(true)
     const urlParams = new URLSearchParams()
     axios
@@ -244,17 +253,21 @@ function ProblemsPid() {
               <div className="mx-2">Submission </div>
               <div className="mx-1 font-semibold">#</div>
               <div className="font-semibold">{submission.id}</div>
-              {submission.author === user.username && (
-                <button
-                  onClick={() => {
-                    rejudge()
-                  }}
-                  type="button"
-                  className="text-sm px-1 m-2 rounded ring-1 hover:ring-2 active:bg-gray-100"
-                >
-                  Rejudge
-                </button>
-              )}
+              {submission.author === user.username &&
+                !submission.result.startsWith('WJ') &&
+                submission.result !== '...' &&
+                submission.result !== '' &&
+                !loading && (
+                  <button
+                    onClick={() => {
+                      rejudge()
+                    }}
+                    type="button"
+                    className="text-sm px-1 m-2 rounded ring-1 hover:ring-2 active:bg-gray-100"
+                  >
+                    Rejudge
+                  </button>
+                )}
             </div>
             {loading ? (
               <LinearProgress />
