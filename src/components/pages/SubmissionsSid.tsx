@@ -120,8 +120,9 @@ function ProblemsPid() {
       if (!ok) return
     }
     setLoading(true)
+    const urlParams = new URLSearchParams()
     axios
-      .put(`${api}/submissions/${params.submission_id}`, {
+      .put(`${api}/submissions/${params.submission_id}`, urlParams, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -243,7 +244,7 @@ function ProblemsPid() {
               <div className="mx-2">Submission </div>
               <div className="mx-1 font-semibold">#</div>
               <div className="font-semibold">{submission.id}</div>
-              {/* {submission.author === user.username && (
+              {submission.author === user.username && user.username === 'tqk' && (
                 <button
                   onClick={() => {
                     rejudge()
@@ -253,7 +254,7 @@ function ProblemsPid() {
                 >
                   Rejudge
                 </button>
-              )} */}
+              )}
             </div>
             {loading ? (
               <LinearProgress />
