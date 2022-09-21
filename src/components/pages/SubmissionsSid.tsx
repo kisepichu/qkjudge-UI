@@ -253,7 +253,8 @@ function ProblemsPid() {
               <div className="mx-2">Submission </div>
               <div className="mx-1 font-semibold">#</div>
               <div className="font-semibold">{submission.id}</div>
-              {submission.author === user.username &&
+              {(submission.author === user.username ||
+                user.username === 'admin') &&
                 !submission.result.startsWith('WJ') &&
                 submission.result !== '...' &&
                 submission.result !== '' &&
