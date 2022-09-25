@@ -1,26 +1,19 @@
-import axios from 'axios'
-import Axios from 'axios'
-import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import AceEditor from 'react-ace'
-import 'ace-builds/src-noconflict/mode-python'
+import { Autocomplete, LinearProgress, TextField } from '@mui/material'
 import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-text'
 import 'ace-builds/src-noconflict/theme-github'
-import {
-  Autocomplete,
-  LinearProgress,
-  Menu,
-  MenuItem,
-  TextField
-} from '@mui/material'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
+import AceEditor from 'react-ace'
+import { useLocation } from 'react-router-dom'
+import ResultCode from '../blocks/ResultCode'
 import languages, { editorMode, Language } from '../data/Languages'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 import {
   useCustomTestSourceMutators,
   useCustomTestSourceState
 } from '../states/customTestSourceState'
-import { useBeforeLoginMutators } from '../states/beforeLogin'
-import ResultCode from '../blocks/ResultCode'
 
 interface PostExecuteRequest {
   language_id: number
@@ -50,21 +43,21 @@ function CustomTest() {
   const source = useCustomTestSourceState()
   const setSource = useCustomTestSourceMutators()
   const [input, setInput] = useState('')
-  const [task, setTask] = useState({
+  const [task, setTask] = useState<PostExecuteResponse>({
     output: '',
     status_code: -1,
     result: 'WJ',
     memory: '-1',
     cpu_time: '-1'
-  } as PostExecuteResponse)
-  const [language, setLanguage] = useState({
+  })
+  const [language, setLanguage] = useState<Language>({
     id: 0,
     label: 'C++ 17 / GCC 11.1.0',
     language: 'C++ 17',
     language_code: 'cpp17',
     version: 'GCC 11.1.0',
     version_index: '1'
-  } as Language)
+  })
   const [executing, setExecuting] = useState(false)
   const [executeLoading, setExecuteLoading] = useState(true)
   function execute() {
@@ -74,22 +67,17 @@ function CustomTest() {
       result: 'WJ',
       memory: '-1',
       cpu_time: '-1'
-    } as PostExecuteResponse)
+    })
     setExecuting(true)
     setExecuteLoading(false)
-    // console.log({
-    //   language_id: language.id,
-    //   source: source.source,
-    //   input
-    // } as PostExecuteRequest)
     axios
       .post<PostExecuteResponse>(
         `${api}/execute`,
-        {
+        ((): PostExecuteRequest => ({
           language_id: language.id,
           source: source.source,
           input
-        } as PostExecuteRequest,
+        }))(),
         { withCredentials: true }
       )
       .then((res) => {
@@ -104,9 +92,9 @@ function CustomTest() {
           result: 'UE',
           memory: '-1',
           cpu_time: '-1'
-        } as PostExecuteResponse)
+        })
         setExecuting(false)
-        if (Axios.isAxiosError(err) && err.response) {
+        if (axios.isAxiosError(err) && err.response) {
           console.log(err)
         }
       })
@@ -158,16 +146,14 @@ function CustomTest() {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            defaultValue={
-              {
-                id: 0,
-                label: 'C++ 17 / GCC 11.1.0',
-                language: 'C++ 17',
-                language_code: 'cpp17',
-                version: 'GCC 11.1.0',
-                version_index: '1'
-              } as AutocompleteOption
-            }
+            defaultValue={{
+              id: 0,
+              label: 'C++ 17 / GCC 11.1.0',
+              language: 'C++ 17',
+              language_code: 'cpp17',
+              version: 'GCC 11.1.0',
+              version_index: '1'
+            }}
             isOptionEqualToValue={(l, r) => l.id === r.id}
             onChange={(event: any, l: Language | null) => {
               if (!l) return

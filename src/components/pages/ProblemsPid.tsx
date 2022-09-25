@@ -1,26 +1,23 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import axios from 'axios'
-import Axios from 'axios'
 import { useEffect, useState } from 'react'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import remarkMath from 'remark-math'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import rehypeKatex from 'rehype-katex'
+import remarkMath from 'remark-math'
 
+import { Autocomplete, LinearProgress, TextField } from '@mui/material'
 import 'katex/dist/katex.min.css' // `rehype-katex` does not import the CSS for you
-import { Button, LinearProgress } from '@mui/material'
 import AceEditor from 'react-ace'
-import { useUserState } from '../states/userState'
-import Login from './Login'
 import LoginBlock from '../blocks/LoginBlock'
-import { useBeforeLoginMutators } from '../states/beforeLogin'
 import languages, { editorMode, Language } from '../data/Languages'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
+import { useUserState } from '../states/userState'
 
-import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-text'
 import 'ace-builds/src-noconflict/theme-github'
-import { Autocomplete, Menu, MenuItem, TextField } from '@mui/material'
 
 type AutocompleteOption = Language
 
@@ -67,14 +64,14 @@ function ProblemsPid() {
     memory_limit: ''
   })
   const [source, setSource] = useState('')
-  const [language, setLanguage] = useState({
+  const [language, setLanguage] = useState<Language>({
     id: 0,
     label: 'C++ 17 / GCC 11.1.0',
     language: 'C++ 17',
     language_code: 'cpp17',
     version: 'GCC 11.1.0',
     version_index: '1'
-  } as Language)
+  })
   const user = useUserState()
   function copy(content: string) {
     navigator.clipboard.writeText(content)
@@ -84,19 +81,14 @@ function ProblemsPid() {
   const navigate = useNavigate()
   function submit() {
     setSubmitting(true)
-    // console.log({
-    //   problem_id: problem.id,
-    //   language_id: language.id,
-    //   source
-    // } as PostSubmitRequest)
     axios
       .post<PostSubmitResponse>(
         `${api}/submit`,
-        {
+        ((): PostSubmitRequest => ({
           problem_id: problem.id,
           language_id: language.id,
           source
-        } as PostSubmitRequest,
+        }))(),
         { withCredentials: true }
       )
       .then((res) => {
@@ -105,7 +97,7 @@ function ProblemsPid() {
       })
       .catch((err) => {
         setSubmitting(false)
-        if (Axios.isAxiosError(err) && err.response && err.response.status) {
+        if (axios.isAxiosError(err) && err.response && err.response.status) {
           setMessage(`submit failed: ${err.response.status}`)
         } else {
           setMessage('submit failed')
@@ -126,7 +118,7 @@ function ProblemsPid() {
         // console.log(res.data)
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.status)
         setLoading(false)
         setProblemNotFound(true)
         setProblem({
@@ -236,16 +228,14 @@ function ProblemsPid() {
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        defaultValue={
-                          {
-                            id: 0,
-                            label: 'C++ 17 / GCC 11.1.0',
-                            language: 'C++ 17',
-                            language_code: 'cpp17',
-                            version: 'GCC 11.1.0',
-                            version_index: '1'
-                          } as AutocompleteOption
-                        }
+                        defaultValue={{
+                          id: 0,
+                          label: 'C++ 17 / GCC 11.1.0',
+                          language: 'C++ 17',
+                          language_code: 'cpp17',
+                          version: 'GCC 11.1.0',
+                          version_index: '1'
+                        }}
                         isOptionEqualToValue={(l, r) => l.id === r.id}
                         onChange={(event: any, l: Language | null) => {
                           if (!l) return

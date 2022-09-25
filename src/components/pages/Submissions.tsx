@@ -1,8 +1,5 @@
-import { ClassNames } from '@emotion/react'
 import { LinearProgress, Pagination } from '@mui/material'
 import axios from 'axios'
-import Axios from 'axios'
-import { Result } from 'postcss'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import ResultCode from '../blocks/ResultCode'
@@ -64,7 +61,7 @@ function Submissions() {
         setSubmissions(res.data.submissions)
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.status)
         setLoading(false)
       })
     // console.log(pagesNum)

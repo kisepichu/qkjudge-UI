@@ -1,19 +1,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { CircularProgress, Dialog, LinearProgress } from '@mui/material'
-import axios from 'axios'
-import Axios from 'axios'
-import { stringify } from 'postcss'
-import { useEffect, useState } from 'react'
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import AceEditor from 'react-ace'
-import languages, { editorMode } from '../data/Languages'
-import { useBeforeLoginMutators } from '../states/beforeLogin'
-import 'ace-builds/src-noconflict/mode-python'
+import { Dialog, LinearProgress } from '@mui/material'
 import 'ace-builds/src-noconflict/mode-c_cpp'
+import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-text'
 import 'ace-builds/src-noconflict/theme-github'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
+import AceEditor from 'react-ace'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import ResultCode from '../blocks/ResultCode'
+import languages, { editorMode } from '../data/Languages'
+import { useBeforeLoginMutators } from '../states/beforeLogin'
 import { useUserState } from '../states/userState'
 
 interface TaskSummary {
@@ -60,7 +57,7 @@ function ProblemsPid() {
   const [loading, setLoading] = useState(true)
   const [reloading, setReloading] = useState(false)
   const [submissionNotFound, setSubmissionNotFound] = useState(false)
-  const [submission, setSubmission] = useState({
+  const [submission, setSubmission] = useState<Submission>({
     id: 0,
     date: '0000-00-00 00:00:00',
     author: '',
@@ -71,7 +68,7 @@ function ProblemsPid() {
     result: 'WJ',
     language_id: -1,
     source: ''
-  } as Submission)
+  })
   const navigate = useNavigate()
   function copy(content: string) {
     navigator.clipboard.writeText(content)
@@ -104,7 +101,7 @@ function ProblemsPid() {
         setReloading(false)
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.status)
         setReloading(false)
         setSubmissionNotFound(true)
         setTimeout(() => {
@@ -144,8 +141,14 @@ function ProblemsPid() {
         for (let i = 0; i < submission.testcase_num; i += 1) {
           tasks.push({
             id: -1,
-            result: 'WJ'
-          } as Task)
+            submission_id: -1,
+            input: '',
+            output: '',
+            expected: '',
+            result: 'WJ',
+            memory: '-1',
+            cpu_time: '-1'
+          })
         }
         setSubmission({
           ...submission,
@@ -155,7 +158,7 @@ function ProblemsPid() {
       })
       .catch((err) => {
         console.log('bu')
-        if (Axios.isAxiosError(err)) console.log(err)
+        if (axios.isAxiosError(err)) console.log(err)
         setLoading(false)
         // setSubmissionNotFound(true)
         // setTimeout(() => {
@@ -181,7 +184,7 @@ function ProblemsPid() {
         setLoading(false)
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.status)
         setLoading(false)
         setSubmissionNotFound(true)
         setTimeout(() => {
@@ -193,7 +196,7 @@ function ProblemsPid() {
   const [taskLoading, setTaskLoading] = useState(true)
   const [taskId, setTaskId] = useState(-1)
   const [taskNumber, setTaskNumber] = useState(-1)
-  const [task, setTask] = useState({
+  const [task, setTask] = useState<Task>({
     id: -1,
     submission_id: -1,
     input: '',
@@ -202,7 +205,7 @@ function ProblemsPid() {
     result: '',
     memory: '-1',
     cpu_time: '-1'
-  } as Task)
+  })
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false)
   function openTaskDetails(id: number, index: number) {
     // console.log(id)
@@ -222,7 +225,7 @@ function ProblemsPid() {
         setTaskLoading(false)
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.status)
         setTaskLoading(false)
         setTask({
           id: -1,
@@ -233,7 +236,7 @@ function ProblemsPid() {
           result: 'UE',
           memory: '-1',
           cpu_time: '-1'
-        } as Task)
+        })
       })
   }, [taskId])
 
