@@ -1,4 +1,5 @@
 import { Autocomplete, LinearProgress, TextField } from '@mui/material'
+import 'ace-builds/src-noconflict/ace'
 import 'ace-builds/src-noconflict/mode-c_cpp'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-text'
