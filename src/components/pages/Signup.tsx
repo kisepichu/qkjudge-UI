@@ -1,9 +1,8 @@
 import axios from 'axios'
-import Axios from 'axios'
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
-import { useUserMutators, useUserState } from '../states/userState'
+import { useUserMutators } from '../states/userState'
 
 interface From {
   pathname: string
@@ -23,7 +22,6 @@ function Signup() {
   const [passwordInput, setPasswordInput] = useState('')
   const [password2Input, setPassword2Input] = useState('')
   const [result, setResult] = useState('')
-  const user = useUserState()
   const setUser = useUserMutators()
   const navigate = useNavigate()
   const location = useLocation()
@@ -52,7 +50,7 @@ function Signup() {
         }
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err) && err.response) {
+        if (axios.isAxiosError(err) && err.response) {
           if (err.response.status === 403) {
             setResult('username or password is wrong')
           } else if (err.response.status === 400) {
@@ -85,7 +83,7 @@ function Signup() {
         }
       })
       .catch((err) => {
-        if (Axios.isAxiosError(err) && err.response) {
+        if (axios.isAxiosError(err) && err.response) {
           if (err.response.status === 409) {
             setResult(`username ${usernameSent} is already taken`)
           } else if (err.response.status === 400) {
