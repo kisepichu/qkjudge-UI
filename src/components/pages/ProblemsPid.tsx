@@ -14,6 +14,7 @@ import languages, { editorMode, Language } from '../data/Languages'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
 import { useUserState } from '../states/userState'
 
+import 'ace-builds/src-noconflict/ace'
 import 'ace-builds/src-noconflict/mode-c_cpp'
 import 'ace-builds/src-noconflict/mode-python'
 import 'ace-builds/src-noconflict/mode-text'
