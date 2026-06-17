@@ -20,6 +20,11 @@ interface GetSubmissionsResponse {
   submissions: Submission[]
 }
 
+// 表示行に legacy 由来かどうかのフラグを持たせる。詳細リンクと author prefix の出し分けに使う。
+interface DisplayRow extends Submission {
+  isLegacy: boolean
+}
+
 function Submissions() {
   const setBeforeLogin = useBeforeLoginMutators()
   const location = useLocation()
@@ -27,8 +32,13 @@ function Submissions() {
     setBeforeLogin(location.pathname)
   }, [])
 
-  const [submissions, setSubmissions] = useState<Submission[]>([])
-  const [pagesNum, setPagesNum] = useState(1)
+  const [rows, setRows] = useState<DisplayRow[]>([])
+  // 新側 / legacy 側の pages_number を分けて保持し、合算をページ総数とする。
+  // 旧サーバーから残してある legacy は新側の末尾に連続するページ番号で続ける
+  // (新側 page=1..newPagesNum、legacy page=newPagesNum+1..newPagesNum+legacyPagesNum)。
+  const [newPagesNum, setNewPagesNum] = useState(0)
+  const [legacyPagesNum, setLegacyPagesNum] = useState(0)
+  const pagesNum = newPagesNum + legacyPagesNum
   const [loading, setLoading] = useState(true)
   const { search } = useLocation()
   const [page, setPage] = useState('1')
@@ -41,30 +51,63 @@ function Submissions() {
 
     if (queryPage) {
       setDefaultPage(Number(queryPage))
+      setPage(queryPage)
     }
+  }, [])
+
+  // mount 時に legacy 側 page=1 を一度だけ取り、legacy pages_number を確定させる。
+  // 新側 pages_number は表示用 fetch のレスポンスから随時更新する。
+  useEffect(() => {
+    const api = import.meta.env.VITE_API_URL
+    axios
+      .get<GetSubmissionsResponse>(`${api}/legacy/submissions?page=1`)
+      .then((res) => {
+        setLegacyPagesNum(res.data.pages_number)
+      })
+      .catch((err) => {
+        if (axios.isAxiosError(err)) console.log(err.status)
+      })
   }, [])
 
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
-    const queryPage = queries.get('page')
-    const url = queryPage
-      ? `${api}/submissions?page=${queryPage}`
-      : `${api}/submissions`
-    // console.log(url)
-    axios
-      .get<GetSubmissionsResponse>(url, {
-        withCredentials: true
-      })
-      .then((res) => {
-        setLoading(false)
-        setPagesNum(res.data.pages_number)
-        setSubmissions(res.data.submissions)
-      })
-      .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
-        setLoading(false)
-      })
-    // console.log(pagesNum)
+    const n = Number(page) || 1
+    setLoading(true)
+    // newPagesNum 未確定 (= 0) の初回は新側にアクセスして取得を兼ねる。
+    if (newPagesNum === 0 || n <= newPagesNum) {
+      axios
+        .get<GetSubmissionsResponse>(`${api}/submissions?page=${n}`, {
+          withCredentials: true
+        })
+        .then((res) => {
+          setLoading(false)
+          setNewPagesNum(res.data.pages_number)
+          setRows(
+            res.data.submissions.map((s) => ({ ...s, isLegacy: false }))
+          )
+        })
+        .catch((err) => {
+          if (axios.isAxiosError(err)) console.log(err.status)
+          setLoading(false)
+        })
+    } else {
+      const legacyPage = n - newPagesNum
+      axios
+        .get<GetSubmissionsResponse>(
+          `${api}/legacy/submissions?page=${legacyPage}`
+        )
+        .then((res) => {
+          setLoading(false)
+          setLegacyPagesNum(res.data.pages_number)
+          setRows(
+            res.data.submissions.map((s) => ({ ...s, isLegacy: true }))
+          )
+        })
+        .catch((err) => {
+          if (axios.isAxiosError(err)) console.log(err.status)
+          setLoading(false)
+        })
+    }
   }, [page])
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
@@ -83,10 +126,17 @@ function Submissions() {
             </div>
           </div>
           <div className="text-base table-row-group text-right">
-            {submissions.map((s) => (
-              <div className="table-row" key={`${s.id}`}>
+            {rows.map((s) => (
+              <div
+                className="table-row"
+                key={s.isLegacy ? `legacy-${s.id}` : `${s.id}`}
+              >
                 <Link
-                  to={`/submissions/${s.id}`}
+                  to={
+                    s.isLegacy
+                      ? `/legacy/submissions/${s.id}`
+                      : `/submissions/${s.id}`
+                  }
                   className="table-cell p-2 w-auto block border font-bold text-blue-500 hover:(underline bg-gray-100)"
                 >
                   #{s.id}
@@ -97,11 +147,8 @@ function Submissions() {
                 >
                   {s.problem_title}
                 </Link>
-                {/* <div className="table-cell p-2 w-auto block border">
-                  {s.problem_id}
-                </div> */}
                 <div className="table-cell p-2 w-auto block border">
-                  {s.author}
+                  {s.isLegacy ? `[legacy] ${s.author}` : s.author}
                 </div>
                 <div className="table-cell p-2 w-auto block border">
                   <ResultCode code={s.result} />

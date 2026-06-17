@@ -36,6 +36,10 @@ function App() {
                   path="/submissions/:submission_id"
                   element={<SubmissionsSid />}
                 />
+                <Route
+                  path="/legacy/submissions/:submission_id"
+                  element={<SubmissionsSid />}
+                />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/custom_test" element={<CustomTest />} />
                 <Route path="/login" element={<Login />} />

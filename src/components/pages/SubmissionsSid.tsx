@@ -47,6 +47,11 @@ function ProblemsPid() {
   const api = import.meta.env.VITE_API_URL
   const setBeforeLogin = useBeforeLoginMutators()
   const location = useLocation()
+  // URL prefix で「旧サーバーから持ち越した legacy 提出の表示」と判定する。
+  // legacy の場合 API は /legacy/submissions/{id} と /legacy/tasks/{id} を叩く必要があり、
+  // rejudge/reload も read-only スナップショット相手では意味がないので無効化する。
+  const isLegacy = location.pathname.startsWith('/legacy/')
+  const apiBase = isLegacy ? `${api}/legacy` : api
   useEffect(() => {
     setBeforeLogin(location.pathname)
   }, [])
@@ -86,7 +91,7 @@ function ProblemsPid() {
       result: '...'
     })
     axios
-      .get<Submission>(`${api}/submissions/${params.submission_id}`, {
+      .get<Submission>(`${apiBase}/submissions/${params.submission_id}`, {
         withCredentials: true
       })
       .then((res) => {
@@ -170,7 +175,7 @@ function ProblemsPid() {
 
   useEffect(() => {
     axios
-      .get<Submission>(`${api}/submissions/${params.submission_id}`, {
+      .get<Submission>(`${apiBase}/submissions/${params.submission_id}`, {
         withCredentials: true
       })
       .then((res) => {
@@ -218,7 +223,7 @@ function ProblemsPid() {
   useEffect(() => {
     if (taskId < 0) return
     axios
-      .get<Task>(`${api}/tasks/${taskId}`, {
+      .get<Task>(`${apiBase}/tasks/${taskId}`, {
         withCredentials: true
       })
       .then((res) => {
@@ -257,8 +262,9 @@ function ProblemsPid() {
               <div className="mx-2">Submission </div>
               <div className="mx-1 font-semibold">#</div>
               <div className="font-semibold">{submission.id}</div>
-              {(submission.author === user.username ||
-                user.username === 'admin') &&
+              {!isLegacy &&
+                (submission.author === user.username ||
+                  user.username === 'admin') &&
                 !submission.result.startsWith('WJ') &&
                 submission.result !== '...' &&
                 submission.result !== '' &&
@@ -339,7 +345,9 @@ function ProblemsPid() {
                       user
                     </div>
                     <div className="table-cell p-1.5 border">
-                      {submission.author}
+                      {isLegacy
+                        ? `[legacy] ${submission.author}`
+                        : submission.author}
                     </div>
                   </div>
                   <div className="table-row-group">
