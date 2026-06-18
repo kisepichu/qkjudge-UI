@@ -44,17 +44,25 @@ function Submissions() {
   const { search } = useLocation()
   const [page, setPage] = useState('1')
   const [defaultPage, setDefaultPage] = useState(1)
-  const queries = new URLSearchParams(search)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const queryPage = queries.get('page')
+  // `?page=` を安全な正整数に変換する。非数値 (`foo`)、0 以下、小数、NaN は 1 に丸める。
+  // 整数化しないと `?page=1.5` が fetch URL にそのまま乗ってサーバー側 400 を引き起こすため。
+  function parsePageQuery(s: string): number {
+    const q = new URLSearchParams(s).get('page')
+    const n = Number(q)
+    if (!Number.isFinite(n) || n < 1) return 1
+    return Math.floor(n)
+  }
 
-    if (queryPage) {
-      setDefaultPage(Number(queryPage))
-      setPage(queryPage)
-    }
-  }, [])
+  // URL の ?page= が変わるたび (初回 mount + browser back/forward 含む) に state を再同期する。
+  // 旧実装は mount 1 回だけだったので、戻る/進むで URL は変わるが UI が古いページ番号のまま
+  // ズレる不具合があった。
+  useEffect(() => {
+    const p = parsePageQuery(search)
+    setDefaultPage(p)
+    setPage(p.toString())
+  }, [search])
 
   // mount 時に legacy 側 page=1 を一度だけ取り、legacy pages_number を確定させる。
   // 新側 pages_number は表示用 fetch のレスポンスから随時更新する。
