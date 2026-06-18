@@ -86,7 +86,10 @@ function Submissions() {
           setLegacyAll(firstPage)
           return
         }
-        // page=2..N を並列で取って concat (順序は page 番号順 = id 降順を維持)
+        // page=2..N を並列で取って concat (順序は page 番号順 = id 降順を維持)。
+        // 一部の page だけ transient error で失敗しても残り (特に page=1) は使えるように、
+        // 各 page の catch では空配列に fallback し、Promise.all 全体は reject させない。
+        // ただし AbortController による cancel だけは外側に伝播させて unmount 時に処理する。
         const restPages = await Promise.all(
           Array.from({ length: totalLegacyPages - 1 }, (_, i) => i + 2).map(
             (p) =>
@@ -96,6 +99,12 @@ function Submissions() {
                   { withCredentials: true, signal: controller.signal }
                 )
                 .then((r) => r.data?.submissions ?? [])
+                .catch((err) => {
+                  if (axios.isCancel(err)) throw err
+                  if (axios.isAxiosError(err))
+                    console.log(err.response?.status)
+                  return [] as Submission[]
+                })
           )
         )
         setLegacyAll([...firstPage, ...restPages.flat()])
