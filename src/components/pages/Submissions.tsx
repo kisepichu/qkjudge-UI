@@ -28,9 +28,12 @@ interface DisplayRow extends Submission {
 function Submissions() {
   const setBeforeLogin = useBeforeLoginMutators()
   const location = useLocation()
+  // beforeLogin (post-login redirect 先) は pathname だけだとクエリ (例: ?page=5)
+  // が落ちる。本ページは ?page= でページ番号を保持するので、search も含めて保存し、
+  // ページ移動でも追従させる。
   useEffect(() => {
-    setBeforeLogin(location.pathname)
-  }, [])
+    setBeforeLogin(location.pathname + location.search)
+  }, [location.pathname, location.search])
 
   const [rows, setRows] = useState<DisplayRow[]>([])
   // 新側 / legacy 側の pages_number を分けて保持し、合算をページ総数とする。

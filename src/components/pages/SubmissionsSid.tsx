@@ -112,7 +112,7 @@ function ProblemsPid() {
         setReloading(false)
       })
       .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
         setReloading(false)
         setSubmissionNotFound(true)
         setTimeout(() => {
@@ -239,7 +239,7 @@ function ProblemsPid() {
         setTaskLoading(false)
       })
       .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
         setTaskLoading(false)
         setTask({
           id: -1,
