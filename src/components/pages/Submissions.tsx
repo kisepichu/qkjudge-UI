@@ -38,7 +38,8 @@ function Submissions() {
   // (新側 page=1..newPagesNum、legacy page=newPagesNum+1..newPagesNum+legacyPagesNum)。
   const [newPagesNum, setNewPagesNum] = useState(0)
   const [legacyPagesNum, setLegacyPagesNum] = useState(0)
-  const pagesNum = newPagesNum + legacyPagesNum
+  // MUI Pagination は count >= 1 を期待するため、まだロード中の 0 状態でも 1 にする。
+  const pagesNum = Math.max(1, newPagesNum + legacyPagesNum)
   const [loading, setLoading] = useState(true)
   const { search } = useLocation()
   const [page, setPage] = useState('1')
@@ -57,18 +58,25 @@ function Submissions() {
 
   // mount 時に legacy 側 page=1 を一度だけ取り、legacy pages_number を確定させる。
   // 新側 pages_number は表示用 fetch のレスポンスから随時更新する。
+  // legacy エンドポイントは public だが、他の認証付き GET と一貫させて withCredentials を付ける。
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
     axios
-      .get<GetSubmissionsResponse>(`${api}/legacy/submissions?page=1`)
+      .get<GetSubmissionsResponse>(`${api}/legacy/submissions?page=1`, {
+        withCredentials: true
+      })
       .then((res) => {
         setLegacyPagesNum(res.data.pages_number)
       })
       .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
       })
   }, [])
 
+  // page か newPagesNum が変わるたびに、N が新側 or legacy のどちらに属するかを再判定する。
+  // 初回 deep link (例 /submissions?page=5) で newPagesNum=0 のまま新側へ投げてしまうと
+  // レスポンスで newPagesNum=1 と判明した後でも再 fetch されないので、依存配列に
+  // newPagesNum を入れて確定後に legacy 側へ切り替わるようにする。
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
     const n = Number(page) || 1
@@ -87,14 +95,15 @@ function Submissions() {
           )
         })
         .catch((err) => {
-          if (axios.isAxiosError(err)) console.log(err.status)
+          if (axios.isAxiosError(err)) console.log(err.response?.status)
           setLoading(false)
         })
     } else {
       const legacyPage = n - newPagesNum
       axios
         .get<GetSubmissionsResponse>(
-          `${api}/legacy/submissions?page=${legacyPage}`
+          `${api}/legacy/submissions?page=${legacyPage}`,
+          { withCredentials: true }
         )
         .then((res) => {
           setLoading(false)
@@ -104,11 +113,11 @@ function Submissions() {
           )
         })
         .catch((err) => {
-          if (axios.isAxiosError(err)) console.log(err.status)
+          if (axios.isAxiosError(err)) console.log(err.response?.status)
           setLoading(false)
         })
     }
-  }, [page])
+  }, [page, newPagesNum])
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
       <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
