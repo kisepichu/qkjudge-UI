@@ -216,14 +216,16 @@ function Submissions() {
 
   // Pagination の総ページ数。新側件数と legacy 件数の合算を PER_PAGE で割る。
   // まだ legacy か newPagesNum 未確定の間は newPagesNum (もしくは 1) を暫定で出す。
-  const totalCount =
+  // newPagesNum=0 (= 新側 0 件) の場合に `(newPagesNum - 1) * PER_PAGE` が負になって
+  // 合算件数を過小評価し、legacy 末尾ページが隠れることがあるため Math.max でガード。
+  const newCount =
     lastNewPageCount === null
       ? newPagesNum * PER_PAGE
-      : (newPagesNum - 1) * PER_PAGE + lastNewPageCount
+      : Math.max(0, (newPagesNum - 1) * PER_PAGE + lastNewPageCount)
   const legacyCount = legacyAll?.length ?? 0
   const pagesNum = Math.max(
     1,
-    Math.ceil((totalCount + legacyCount) / PER_PAGE)
+    Math.ceil((newCount + legacyCount) / PER_PAGE)
   )
 
   return (
