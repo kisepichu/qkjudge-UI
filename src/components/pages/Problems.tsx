@@ -35,12 +35,14 @@ function Problems() {
     axios
       .get<GetProblemsResponse>(`${api}/problems`, { withCredentials: true })
       .then((res) => {
-        setProblems(res.data.problems)
+        // 想定外レスポンス (env 誤設定で SPA fallback の HTML が返る等) でも
+        // クラッシュさせずに空表示で済むようにガードする。
+        setProblems(res.data?.problems ?? [])
         setLoading(false)
       })
       .catch((err) => {
         console.log(err)
-        setLoading(true)
+        setLoading(false)
       })
   }, [user])
 

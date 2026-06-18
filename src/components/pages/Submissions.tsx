@@ -80,7 +80,7 @@ function Submissions() {
         signal: controller.signal
       })
       .then((res) => {
-        setLegacyPagesNum(res.data.pages_number)
+        setLegacyPagesNum(res.data?.pages_number ?? 0)
       })
       .catch((err) => {
         if (axios.isCancel(err)) return
@@ -110,9 +110,12 @@ function Submissions() {
         })
         .then((res) => {
           setLoading(false)
-          setNewPagesNum(res.data.pages_number)
+          setNewPagesNum(res.data?.pages_number ?? 0)
           setRows(
-            res.data.submissions.map((s) => ({ ...s, isLegacy: false }))
+            (res.data?.submissions ?? []).map((s) => ({
+              ...s,
+              isLegacy: false
+            }))
           )
         })
         .catch((err) => {
@@ -129,9 +132,12 @@ function Submissions() {
         )
         .then((res) => {
           setLoading(false)
-          setLegacyPagesNum(res.data.pages_number)
+          setLegacyPagesNum(res.data?.pages_number ?? 0)
           setRows(
-            res.data.submissions.map((s) => ({ ...s, isLegacy: true }))
+            (res.data?.submissions ?? []).map((s) => ({
+              ...s,
+              isLegacy: true
+            }))
           )
         })
         .catch((err) => {
