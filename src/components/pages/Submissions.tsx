@@ -70,18 +70,25 @@ function Submissions() {
   // mount 時に legacy 側 page=1 を一度だけ取り、legacy pages_number を確定させる。
   // 新側 pages_number は表示用 fetch のレスポンスから随時更新する。
   // legacy エンドポイントは public だが、他の認証付き GET と一貫させて withCredentials を付ける。
+  // 他 fetch と挙動を揃えるため、unmount 中の遅延レスポンスを AbortController で cancel する。
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
+    const controller = new AbortController()
     axios
       .get<GetSubmissionsResponse>(`${api}/legacy/submissions?page=1`, {
-        withCredentials: true
+        withCredentials: true,
+        signal: controller.signal
       })
       .then((res) => {
         setLegacyPagesNum(res.data.pages_number)
       })
       .catch((err) => {
+        if (axios.isCancel(err)) return
         if (axios.isAxiosError(err)) console.log(err.response?.status)
       })
+    return () => {
+      controller.abort()
+    }
   }, [])
 
   // page か newPagesNum が変わるたびに、N が新側 or legacy のどちらに属するかを再判定する。
