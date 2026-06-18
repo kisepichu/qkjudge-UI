@@ -296,7 +296,7 @@ function Submissions() {
               setPage(p.toString())
               setDefaultPage(p)
             }}
-            page={defaultPage}
+            page={Math.min(defaultPage, pagesNum)}
             count={pagesNum}
             variant="outlined"
             color="secondary"
