@@ -45,6 +45,21 @@ function Home() {
         </div>
       </div>
       <div className="my-5 bg-local">
+        <div className="m-auto p-3 md:p-4 max-w-11/12 shadow bg-yellow-100 border-l-4 border-yellow-500 text-base md:text-lg">
+          <div className="text-xl md:text-2xl font-bold mb-1">
+            サーバー移行のお知らせ
+          </div>
+          <p>
+            このサイトは旧 <code>judge.tqk.blue</code> から{' '}
+            <code>qkjudge.kisen.one</code> に移行しました。
+            旧サーバーのアカウントは引き継いでいないため、{' '}
+            <strong>お手数ですが再度ユーザー登録をお願いします</strong>
+            。過去の提出は提出一覧の末尾に <code>[legacy]</code>{' '}
+            として閲覧のみ可能です。
+          </p>
+        </div>
+      </div>
+      <div className="my-5 bg-local">
         <div className="m-auto p-3 md:p-6 max-w-11/12 shadow bg-orange-100 text-base md:text-xl">
           <div className="text-2xl font-bold flex">
             <div className="font-icon">QK Judge</div>
