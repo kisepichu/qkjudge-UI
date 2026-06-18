@@ -6,6 +6,8 @@ import ResultCode from '../blocks/ResultCode'
 import languages from '../data/Languages'
 import { useBeforeLoginMutators } from '../states/beforeLogin'
 
+const PER_PAGE = 10
+
 interface Submission {
   id: number
   problem_id: number
@@ -20,7 +22,7 @@ interface GetSubmissionsResponse {
   submissions: Submission[]
 }
 
-// 表示行に legacy 由来かどうかのフラグを持たせる。詳細リンクと author prefix の出し分けに使う。
+// 表示行に legacy 由来かどうかのフラグを持たせる。詳細リンクと author prefix / ID prefix の出し分けに使う。
 interface DisplayRow extends Submission {
   isLegacy: boolean
 }
@@ -35,14 +37,17 @@ function Submissions() {
     setBeforeLogin(location.pathname + location.search)
   }, [location.pathname, location.search])
 
+  // 新側は変動するためページごとに fetch、legacy は read-only スナップショットなので
+  // mount 時に全件まとめて取得しメモリに保持する。これで「新側最後のページに legacy の
+  // 先頭を埋め込み、それ以降は legacy 全体をシフトして連続ページング」する slice を
+  // 単純なオフセット計算で組める。
   const [rows, setRows] = useState<DisplayRow[]>([])
-  // 新側 / legacy 側の pages_number を分けて保持し、合算をページ総数とする。
-  // 旧サーバーから残してある legacy は新側の末尾に連続するページ番号で続ける
-  // (新側 page=1..newPagesNum、legacy page=newPagesNum+1..newPagesNum+legacyPagesNum)。
   const [newPagesNum, setNewPagesNum] = useState(0)
-  const [legacyPagesNum, setLegacyPagesNum] = useState(0)
-  // MUI Pagination は count >= 1 を期待するため、まだロード中の 0 状態でも 1 にする。
-  const pagesNum = Math.max(1, newPagesNum + legacyPagesNum)
+  // 新側最後ページの件数。null = まだ未取得 (= 最後ページ fetch されていない)。
+  // legacy 領域 (n > newPagesNum) の表示には shift = PER_PAGE - lastNewPageCount が必要。
+  const [lastNewPageCount, setLastNewPageCount] = useState<number | null>(null)
+  // legacy 全件 (id 降順)。null = まだロード中。空配列ならエラー or legacy なし。
+  const [legacyAll, setLegacyAll] = useState<Submission[] | null>(null)
   const [loading, setLoading] = useState(true)
   const { search } = location
   const [page, setPage] = useState('1')
@@ -50,7 +55,6 @@ function Submissions() {
   const navigate = useNavigate()
 
   // `?page=` を安全な正整数に変換する。非数値 (`foo`)、0 以下、小数、NaN は 1 に丸める。
-  // 整数化しないと `?page=1.5` が fetch URL にそのまま乗ってサーバー側 400 を引き起こすため。
   function parsePageQuery(s: string): number {
     const q = new URLSearchParams(s).get('page')
     const n = Number(q)
@@ -58,19 +62,15 @@ function Submissions() {
     return Math.floor(n)
   }
 
-  // URL の ?page= が変わるたび (初回 mount + browser back/forward 含む) に state を再同期する。
-  // 旧実装は mount 1 回だけだったので、戻る/進むで URL は変わるが UI が古いページ番号のまま
-  // ズレる不具合があった。
+  // URL の ?page= 変化 (mount + browser back/forward) を state に再同期する。
   useEffect(() => {
     const p = parsePageQuery(search)
     setDefaultPage(p)
     setPage(p.toString())
   }, [search])
 
-  // mount 時に legacy 側 page=1 を一度だけ取り、legacy pages_number を確定させる。
-  // 新側 pages_number は表示用 fetch のレスポンスから随時更新する。
-  // legacy エンドポイントは public だが、他の認証付き GET と一貫させて withCredentials を付ける。
-  // 他 fetch と挙動を揃えるため、unmount 中の遅延レスポンスを AbortController で cancel する。
+  // mount: legacy 全 pages を並列取得して memory に置く。read-only スナップショットで
+  // 件数も小さい (TASK-005 時点で 58 件 / 6 ページ) ので全件持っても問題ない。
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
     const controller = new AbortController()
@@ -79,77 +79,153 @@ function Submissions() {
         withCredentials: true,
         signal: controller.signal
       })
-      .then((res) => {
-        setLegacyPagesNum(res.data?.pages_number ?? 0)
+      .then(async (res) => {
+        const firstPage = res.data?.submissions ?? []
+        const totalLegacyPages = res.data?.pages_number ?? 0
+        if (totalLegacyPages <= 1) {
+          setLegacyAll(firstPage)
+          return
+        }
+        // page=2..N を並列で取って concat (順序は page 番号順 = id 降順を維持)
+        const restPages = await Promise.all(
+          Array.from({ length: totalLegacyPages - 1 }, (_, i) => i + 2).map(
+            (p) =>
+              axios
+                .get<GetSubmissionsResponse>(
+                  `${api}/legacy/submissions?page=${p}`,
+                  { withCredentials: true, signal: controller.signal }
+                )
+                .then((r) => r.data?.submissions ?? [])
+          )
+        )
+        setLegacyAll([...firstPage, ...restPages.flat()])
       })
       .catch((err) => {
         if (axios.isCancel(err)) return
         if (axios.isAxiosError(err)) console.log(err.response?.status)
+        setLegacyAll([])
       })
     return () => {
       controller.abort()
     }
   }, [])
 
-  // page か newPagesNum が変わるたびに、N が新側 or legacy のどちらに属するかを再判定する。
-  // 初回 deep link (例 /submissions?page=5) で newPagesNum=0 のまま新側へ投げてしまうと
-  // レスポンスで newPagesNum=1 と判明した後でも再 fetch されないので、依存配列に
-  // newPagesNum を入れて確定後に legacy 側へ切り替わるようにする。
-  // ページを素早く切り替えたときに先発リクエストが後から解決して rows を上書きしないよう、
-  // AbortController で前リクエストを cleanup し、cancel 由来の catch は無視する。
+  // 表示する page p のロジック:
+  //   p < newPagesNum         → 新側 page=p のみ (満ページ)
+  //   p === newPagesNum       → 新側 page=p + legacy 先頭で 10 件に埋める (境界ページ)
+  //   p > newPagesNum         → legacy のシフトしたオフセット位置から 10 件 (fetch 不要)
+  //
+  // legacyAll が未確定の段階では「新側のみ」モードで表示する (legacy が遅れて来ても、
+  // 後で再評価して境界 / シフト表示に切り替わる)。
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
     const n = Number(page) || 1
     setLoading(true)
     const controller = new AbortController()
+
+    // 新側ゼロ件 (newPagesNum=0 が確定後) で legacy が確定済みなら、全部 legacy 扱い。
+    if (
+      legacyAll !== null &&
+      newPagesNum === 0 &&
+      lastNewPageCount !== null
+    ) {
+      const offset = (n - 1) * PER_PAGE
+      setRows(
+        legacyAll.slice(offset, offset + PER_PAGE).map((s) => ({
+          ...s,
+          isLegacy: true
+        }))
+      )
+      setLoading(false)
+      return undefined
+    }
+
     if (newPagesNum === 0 || n <= newPagesNum) {
+      // 新側 fetch が要るケース (初回、または n が新側範囲内)
       axios
         .get<GetSubmissionsResponse>(`${api}/submissions?page=${n}`, {
           withCredentials: true,
           signal: controller.signal
         })
         .then((res) => {
+          const fetchedNewPages = res.data?.pages_number ?? 0
+          const newSubs = res.data?.submissions ?? []
+          setNewPagesNum(fetchedNewPages)
+          // 最後ページに到達したら最後ページの件数を確定 (= シフト計算の基礎)。
+          if (n === fetchedNewPages || fetchedNewPages === 0) {
+            setLastNewPageCount(newSubs.length)
+          }
+          // 境界ページ: 新側 + legacy 先頭 で PER_PAGE に埋める。
+          if (
+            legacyAll !== null &&
+            n === fetchedNewPages &&
+            newSubs.length < PER_PAGE
+          ) {
+            const fill = PER_PAGE - newSubs.length
+            setRows([
+              ...newSubs.map((s) => ({ ...s, isLegacy: false })),
+              ...legacyAll
+                .slice(0, fill)
+                .map((s) => ({ ...s, isLegacy: true }))
+            ])
+          } else {
+            setRows(newSubs.map((s) => ({ ...s, isLegacy: false })))
+          }
           setLoading(false)
-          setNewPagesNum(res.data?.pages_number ?? 0)
-          setRows(
-            (res.data?.submissions ?? []).map((s) => ({
-              ...s,
-              isLegacy: false
-            }))
-          )
         })
         .catch((err) => {
           if (axios.isCancel(err)) return
           if (axios.isAxiosError(err)) console.log(err.response?.status)
           setLoading(false)
         })
-    } else {
-      const legacyPage = n - newPagesNum
+    } else if (lastNewPageCount === null) {
+      // n > newPagesNum で legacy 領域だが、shift を計算するのに新側最後ページの件数が
+      // 必要。まだ取れていないので新側 page=newPagesNum を fetch して確定させる。
+      // (その state 更新でこの effect が再実行され、本物の表示分岐へ進む。)
       axios
         .get<GetSubmissionsResponse>(
-          `${api}/legacy/submissions?page=${legacyPage}`,
+          `${api}/submissions?page=${newPagesNum}`,
           { withCredentials: true, signal: controller.signal }
         )
         .then((res) => {
-          setLoading(false)
-          setLegacyPagesNum(res.data?.pages_number ?? 0)
-          setRows(
-            (res.data?.submissions ?? []).map((s) => ({
-              ...s,
-              isLegacy: true
-            }))
-          )
+          const lastCount = (res.data?.submissions ?? []).length
+          setLastNewPageCount(lastCount)
         })
         .catch((err) => {
           if (axios.isCancel(err)) return
           if (axios.isAxiosError(err)) console.log(err.response?.status)
           setLoading(false)
         })
+    } else if (legacyAll !== null) {
+      // 純 legacy 領域: シフトしたオフセットから 10 件 slice。fetch 不要。
+      const shift = PER_PAGE - lastNewPageCount
+      const offset = shift + (n - newPagesNum - 1) * PER_PAGE
+      setRows(
+        legacyAll.slice(offset, offset + PER_PAGE).map((s) => ({
+          ...s,
+          isLegacy: true
+        }))
+      )
+      setLoading(false)
     }
+
     return () => {
       controller.abort()
     }
-  }, [page, newPagesNum])
+  }, [page, newPagesNum, lastNewPageCount, legacyAll])
+
+  // Pagination の総ページ数。新側件数と legacy 件数の合算を PER_PAGE で割る。
+  // まだ legacy か newPagesNum 未確定の間は newPagesNum (もしくは 1) を暫定で出す。
+  const totalCount =
+    lastNewPageCount === null
+      ? newPagesNum * PER_PAGE
+      : (newPagesNum - 1) * PER_PAGE + lastNewPageCount
+  const legacyCount = legacyAll?.length ?? 0
+  const pagesNum = Math.max(
+    1,
+    Math.ceil((totalCount + legacyCount) / PER_PAGE)
+  )
+
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
       <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
@@ -180,7 +256,7 @@ function Submissions() {
                   }
                   className="table-cell p-2 w-auto block border font-bold text-blue-500 hover:(underline bg-gray-100)"
                 >
-                  #{s.id}
+                  {s.isLegacy ? `#L-${s.id}` : `#${s.id}`}
                 </Link>
                 <Link
                   to={`/problems/${s.problem_id}`}
@@ -204,7 +280,6 @@ function Submissions() {
         <div className="flex justify-center m-4">
           <Pagination
             onChange={(e, p) => {
-              // console.log(p)
               if (p.toString() !== page) setLoading(true)
               navigate(`/submissions?page=${p}`)
               setPage(p.toString())
