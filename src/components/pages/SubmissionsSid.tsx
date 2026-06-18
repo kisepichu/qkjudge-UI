@@ -288,7 +288,7 @@ function ProblemsPid() {
           <div>
             <div className="text-3xl mb-6 flex">
               <div className="mx-2">Submission </div>
-              <div className="mx-1 font-semibold">#</div>
+              <div className="mx-1 font-semibold">{isLegacy ? '#L-' : '#'}</div>
               <div className="font-semibold">{submission.id}</div>
               {!isLegacy &&
                 (submission.author === user.username ||
