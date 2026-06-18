@@ -88,15 +88,18 @@ function Submissions() {
   // 初回 deep link (例 /submissions?page=5) で newPagesNum=0 のまま新側へ投げてしまうと
   // レスポンスで newPagesNum=1 と判明した後でも再 fetch されないので、依存配列に
   // newPagesNum を入れて確定後に legacy 側へ切り替わるようにする。
+  // ページを素早く切り替えたときに先発リクエストが後から解決して rows を上書きしないよう、
+  // AbortController で前リクエストを cleanup し、cancel 由来の catch は無視する。
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
     const n = Number(page) || 1
     setLoading(true)
-    // newPagesNum 未確定 (= 0) の初回は新側にアクセスして取得を兼ねる。
+    const controller = new AbortController()
     if (newPagesNum === 0 || n <= newPagesNum) {
       axios
         .get<GetSubmissionsResponse>(`${api}/submissions?page=${n}`, {
-          withCredentials: true
+          withCredentials: true,
+          signal: controller.signal
         })
         .then((res) => {
           setLoading(false)
@@ -106,6 +109,7 @@ function Submissions() {
           )
         })
         .catch((err) => {
+          if (axios.isCancel(err)) return
           if (axios.isAxiosError(err)) console.log(err.response?.status)
           setLoading(false)
         })
@@ -114,7 +118,7 @@ function Submissions() {
       axios
         .get<GetSubmissionsResponse>(
           `${api}/legacy/submissions?page=${legacyPage}`,
-          { withCredentials: true }
+          { withCredentials: true, signal: controller.signal }
         )
         .then((res) => {
           setLoading(false)
@@ -124,9 +128,13 @@ function Submissions() {
           )
         })
         .catch((err) => {
+          if (axios.isCancel(err)) return
           if (axios.isAxiosError(err)) console.log(err.response?.status)
           setLoading(false)
         })
+    }
+    return () => {
+      controller.abort()
     }
   }, [page, newPagesNum])
   return (

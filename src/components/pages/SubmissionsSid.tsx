@@ -180,11 +180,18 @@ function ProblemsPid() {
 
   // submission_id (SPA 内の別提出への遷移) と apiBase (legacy↔新側の切替) のどちらが
   // 変わっても再 fetch しないと、古い提出のデータが画面に残ってしまう。
+  // 加えて、リクエスト中に画面遷移すると in-flight な axios の reject や
+  // setTimeout(navigate) が後から発火して、移動先のページから一覧に戻されてしまう。
+  // AbortController で前リクエストを cancel し、redirect タイマーも cleanup で
+  // clearTimeout する。
   useEffect(() => {
     setLoading(true)
+    const controller = new AbortController()
+    let redirectTimer: ReturnType<typeof setTimeout> | undefined
     axios
       .get<Submission>(`${apiBase}/submissions/${params.submission_id}`, {
-        withCredentials: true
+        withCredentials: true,
+        signal: controller.signal
       })
       .then((res) => {
         for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
@@ -198,13 +205,18 @@ function ProblemsPid() {
         setLoading(false)
       })
       .catch((err) => {
+        if (axios.isCancel(err)) return
         if (axios.isAxiosError(err)) console.log(err.response?.status)
         setLoading(false)
         setSubmissionNotFound(true)
-        setTimeout(() => {
+        redirectTimer = setTimeout(() => {
           navigate('/submissions')
         }, 2000)
       })
+    return () => {
+      controller.abort()
+      if (redirectTimer) clearTimeout(redirectTimer)
+    }
   }, [params.submission_id, apiBase])
 
   const [taskLoading, setTaskLoading] = useState(true)
@@ -228,17 +240,22 @@ function ProblemsPid() {
     setTaskLoading(true)
     setTaskDetailsOpen(true)
   }
+  // task fetch も apiBase に依存するので legacy↔新側切替に追従させる。
+  // 加えて、taskId 連続切替時の race を avoid するため AbortController を使う。
   useEffect(() => {
-    if (taskId < 0) return
+    if (taskId < 0) return undefined
+    const controller = new AbortController()
     axios
       .get<Task>(`${apiBase}/tasks/${taskId}`, {
-        withCredentials: true
+        withCredentials: true,
+        signal: controller.signal
       })
       .then((res) => {
         setTask(res.data)
         setTaskLoading(false)
       })
       .catch((err) => {
+        if (axios.isCancel(err)) return
         if (axios.isAxiosError(err)) console.log(err.response?.status)
         setTaskLoading(false)
         setTask({
@@ -252,7 +269,10 @@ function ProblemsPid() {
           cpu_time: '-1'
         })
       })
-  }, [taskId])
+    return () => {
+      controller.abort()
+    }
+  }, [taskId, apiBase])
 
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
