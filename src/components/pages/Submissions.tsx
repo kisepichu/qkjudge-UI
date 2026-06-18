@@ -41,7 +41,7 @@ function Submissions() {
   // MUI Pagination は count >= 1 を期待するため、まだロード中の 0 状態でも 1 にする。
   const pagesNum = Math.max(1, newPagesNum + legacyPagesNum)
   const [loading, setLoading] = useState(true)
-  const { search } = useLocation()
+  const { search } = location
   const [page, setPage] = useState('1')
   const [defaultPage, setDefaultPage] = useState(1)
   const navigate = useNavigate()

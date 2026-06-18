@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       '^/qkjudge/api/.*': {
-        target: 'https://qkjudge-api-stg.kisen.one/',
+        target: 'https://qkjudge-api-stg.kisen.one',
         changeOrigin: true,
         rewrite(path) {
           return path.replace(/^\/qkjudge\/api/, '')
