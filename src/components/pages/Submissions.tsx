@@ -20,52 +20,130 @@ interface GetSubmissionsResponse {
   submissions: Submission[]
 }
 
+// 表示行に legacy 由来かどうかのフラグを持たせる。詳細リンクと author prefix の出し分けに使う。
+interface DisplayRow extends Submission {
+  isLegacy: boolean
+}
+
 function Submissions() {
   const setBeforeLogin = useBeforeLoginMutators()
   const location = useLocation()
+  // beforeLogin (post-login redirect 先) は pathname だけだとクエリ (例: ?page=5)
+  // が落ちる。本ページは ?page= でページ番号を保持するので、search も含めて保存し、
+  // ページ移動でも追従させる。
   useEffect(() => {
-    setBeforeLogin(location.pathname)
-  }, [])
+    setBeforeLogin(location.pathname + location.search)
+  }, [location.pathname, location.search])
 
-  const [submissions, setSubmissions] = useState<Submission[]>([])
-  const [pagesNum, setPagesNum] = useState(1)
+  const [rows, setRows] = useState<DisplayRow[]>([])
+  // 新側 / legacy 側の pages_number を分けて保持し、合算をページ総数とする。
+  // 旧サーバーから残してある legacy は新側の末尾に連続するページ番号で続ける
+  // (新側 page=1..newPagesNum、legacy page=newPagesNum+1..newPagesNum+legacyPagesNum)。
+  const [newPagesNum, setNewPagesNum] = useState(0)
+  const [legacyPagesNum, setLegacyPagesNum] = useState(0)
+  // MUI Pagination は count >= 1 を期待するため、まだロード中の 0 状態でも 1 にする。
+  const pagesNum = Math.max(1, newPagesNum + legacyPagesNum)
   const [loading, setLoading] = useState(true)
-  const { search } = useLocation()
+  const { search } = location
   const [page, setPage] = useState('1')
   const [defaultPage, setDefaultPage] = useState(1)
-  const queries = new URLSearchParams(search)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const queryPage = queries.get('page')
+  // `?page=` を安全な正整数に変換する。非数値 (`foo`)、0 以下、小数、NaN は 1 に丸める。
+  // 整数化しないと `?page=1.5` が fetch URL にそのまま乗ってサーバー側 400 を引き起こすため。
+  function parsePageQuery(s: string): number {
+    const q = new URLSearchParams(s).get('page')
+    const n = Number(q)
+    if (!Number.isFinite(n) || n < 1) return 1
+    return Math.floor(n)
+  }
 
-    if (queryPage) {
-      setDefaultPage(Number(queryPage))
+  // URL の ?page= が変わるたび (初回 mount + browser back/forward 含む) に state を再同期する。
+  // 旧実装は mount 1 回だけだったので、戻る/進むで URL は変わるが UI が古いページ番号のまま
+  // ズレる不具合があった。
+  useEffect(() => {
+    const p = parsePageQuery(search)
+    setDefaultPage(p)
+    setPage(p.toString())
+  }, [search])
+
+  // mount 時に legacy 側 page=1 を一度だけ取り、legacy pages_number を確定させる。
+  // 新側 pages_number は表示用 fetch のレスポンスから随時更新する。
+  // legacy エンドポイントは public だが、他の認証付き GET と一貫させて withCredentials を付ける。
+  // 他 fetch と挙動を揃えるため、unmount 中の遅延レスポンスを AbortController で cancel する。
+  useEffect(() => {
+    const api = import.meta.env.VITE_API_URL
+    const controller = new AbortController()
+    axios
+      .get<GetSubmissionsResponse>(`${api}/legacy/submissions?page=1`, {
+        withCredentials: true,
+        signal: controller.signal
+      })
+      .then((res) => {
+        setLegacyPagesNum(res.data.pages_number)
+      })
+      .catch((err) => {
+        if (axios.isCancel(err)) return
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
+      })
+    return () => {
+      controller.abort()
     }
   }, [])
 
+  // page か newPagesNum が変わるたびに、N が新側 or legacy のどちらに属するかを再判定する。
+  // 初回 deep link (例 /submissions?page=5) で newPagesNum=0 のまま新側へ投げてしまうと
+  // レスポンスで newPagesNum=1 と判明した後でも再 fetch されないので、依存配列に
+  // newPagesNum を入れて確定後に legacy 側へ切り替わるようにする。
+  // ページを素早く切り替えたときに先発リクエストが後から解決して rows を上書きしないよう、
+  // AbortController で前リクエストを cleanup し、cancel 由来の catch は無視する。
   useEffect(() => {
     const api = import.meta.env.VITE_API_URL
-    const queryPage = queries.get('page')
-    const url = queryPage
-      ? `${api}/submissions?page=${queryPage}`
-      : `${api}/submissions`
-    // console.log(url)
-    axios
-      .get<GetSubmissionsResponse>(url, {
-        withCredentials: true
-      })
-      .then((res) => {
-        setLoading(false)
-        setPagesNum(res.data.pages_number)
-        setSubmissions(res.data.submissions)
-      })
-      .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
-        setLoading(false)
-      })
-    // console.log(pagesNum)
-  }, [page])
+    const n = Number(page) || 1
+    setLoading(true)
+    const controller = new AbortController()
+    if (newPagesNum === 0 || n <= newPagesNum) {
+      axios
+        .get<GetSubmissionsResponse>(`${api}/submissions?page=${n}`, {
+          withCredentials: true,
+          signal: controller.signal
+        })
+        .then((res) => {
+          setLoading(false)
+          setNewPagesNum(res.data.pages_number)
+          setRows(
+            res.data.submissions.map((s) => ({ ...s, isLegacy: false }))
+          )
+        })
+        .catch((err) => {
+          if (axios.isCancel(err)) return
+          if (axios.isAxiosError(err)) console.log(err.response?.status)
+          setLoading(false)
+        })
+    } else {
+      const legacyPage = n - newPagesNum
+      axios
+        .get<GetSubmissionsResponse>(
+          `${api}/legacy/submissions?page=${legacyPage}`,
+          { withCredentials: true, signal: controller.signal }
+        )
+        .then((res) => {
+          setLoading(false)
+          setLegacyPagesNum(res.data.pages_number)
+          setRows(
+            res.data.submissions.map((s) => ({ ...s, isLegacy: true }))
+          )
+        })
+        .catch((err) => {
+          if (axios.isCancel(err)) return
+          if (axios.isAxiosError(err)) console.log(err.response?.status)
+          setLoading(false)
+        })
+    }
+    return () => {
+      controller.abort()
+    }
+  }, [page, newPagesNum])
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
       <div className="m-auto p-6 md:p-8 max-w-11/12 shadow-lg bg-light-50">
@@ -83,10 +161,17 @@ function Submissions() {
             </div>
           </div>
           <div className="text-base table-row-group text-right">
-            {submissions.map((s) => (
-              <div className="table-row" key={`${s.id}`}>
+            {rows.map((s) => (
+              <div
+                className="table-row"
+                key={s.isLegacy ? `legacy-${s.id}` : `${s.id}`}
+              >
                 <Link
-                  to={`/submissions/${s.id}`}
+                  to={
+                    s.isLegacy
+                      ? `/legacy/submissions/${s.id}`
+                      : `/submissions/${s.id}`
+                  }
                   className="table-cell p-2 w-auto block border font-bold text-blue-500 hover:(underline bg-gray-100)"
                 >
                   #{s.id}
@@ -97,11 +182,8 @@ function Submissions() {
                 >
                   {s.problem_title}
                 </Link>
-                {/* <div className="table-cell p-2 w-auto block border">
-                  {s.problem_id}
-                </div> */}
                 <div className="table-cell p-2 w-auto block border">
-                  {s.author}
+                  {s.isLegacy ? `[legacy] ${s.author}` : s.author}
                 </div>
                 <div className="table-cell p-2 w-auto block border">
                   <ResultCode code={s.result} />

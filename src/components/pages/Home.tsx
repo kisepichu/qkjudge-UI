@@ -14,6 +14,17 @@ function Home() {
 
   return (
     <div>
+      <div className="m-auto p-3 md:p-4 max-w-11/12 shadow bg-yellow-100 text-base md:text-lg border-l-4 border-yellow-500">
+        <div className="font-bold">サーバー移行のお知らせ</div>
+        <p>
+          このサイトは旧 <code>judge.tqk.blue</code> から{' '}
+          <code>qkjudge.kisen.one</code> に移行しました。
+          旧サーバーのアカウントは引き継いでいないため、{' '}
+          <strong>お手数ですが再度ユーザー登録をお願いします</strong>
+          。過去の提出は提出一覧の末尾に <code>[legacy]</code>{' '}
+          として閲覧のみ可能です。
+        </p>
+      </div>
       <div className="max-w-full bg-local p-16 md:p-64 bg-gradient-to-bl from-heroyellow-100 to-herocyan-100 text-center">
         <div className="text-xl">
           <Typography

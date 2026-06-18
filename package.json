@@ -1,12 +1,12 @@
 {
   "name": "qkjudge",
-  "homepage": "https://judge.tqk.blue",
+  "homepage": "https://qkjudge.kisen.one",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && cp dist/index.html dist/404.html",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint --ext .tsx,.ts src/",
     "format": "prettier --write \"**/*.+(js|json|yml|ts|tsx)\""

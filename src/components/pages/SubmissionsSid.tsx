@@ -47,9 +47,19 @@ function ProblemsPid() {
   const api = import.meta.env.VITE_API_URL
   const setBeforeLogin = useBeforeLoginMutators()
   const location = useLocation()
+  // URL prefix で「旧サーバーから持ち越した legacy 提出の表示」と判定する。
+  // legacy の場合 API は /legacy/submissions/{id} と /legacy/tasks/{id} を叩く必要があり、
+  // read-only スナップショット相手なので Rejudge / Reload ボタンは出さない (Reload は
+  // result が `WJ` の間だけ出るボタンで、legacy スナップショットは常に確定結果のため
+  // 事実上出ないが、防御的に !isLegacy ガードも付ける)。
+  const isLegacy = location.pathname.startsWith('/legacy/')
+  const apiBase = isLegacy ? `${api}/legacy` : api
+  // pathname は SPA 内ナビ (別 submission_id / 新側↔legacy 切替) で変わるため、
+  // beforeLogin に保存する戻り先 URL も追従させる (post-login redirect が古い
+  // ページを指してしまうのを防ぐ)。
   useEffect(() => {
     setBeforeLogin(location.pathname)
-  }, [])
+  }, [location.pathname])
   const user = useUserState()
 
   const params = useParams<{
@@ -86,7 +96,7 @@ function ProblemsPid() {
       result: '...'
     })
     axios
-      .get<Submission>(`${api}/submissions/${params.submission_id}`, {
+      .get<Submission>(`${apiBase}/submissions/${params.submission_id}`, {
         withCredentials: true
       })
       .then((res) => {
@@ -102,7 +112,7 @@ function ProblemsPid() {
         setReloading(false)
       })
       .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
         setReloading(false)
         setSubmissionNotFound(true)
         setTimeout(() => {
@@ -168,10 +178,20 @@ function ProblemsPid() {
       })
   }
 
+  // submission_id (SPA 内の別提出への遷移) と apiBase (legacy↔新側の切替) のどちらが
+  // 変わっても再 fetch しないと、古い提出のデータが画面に残ってしまう。
+  // 加えて、リクエスト中に画面遷移すると in-flight な axios の reject や
+  // setTimeout(navigate) が後から発火して、移動先のページから一覧に戻されてしまう。
+  // AbortController で前リクエストを cancel し、redirect タイマーも cleanup で
+  // clearTimeout する。
   useEffect(() => {
+    setLoading(true)
+    const controller = new AbortController()
+    let redirectTimer: ReturnType<typeof setTimeout> | undefined
     axios
-      .get<Submission>(`${api}/submissions/${params.submission_id}`, {
-        withCredentials: true
+      .get<Submission>(`${apiBase}/submissions/${params.submission_id}`, {
+        withCredentials: true,
+        signal: controller.signal
       })
       .then((res) => {
         for (let i = res.data.tasks.length; i < res.data.testcase_num; i += 1) {
@@ -185,14 +205,19 @@ function ProblemsPid() {
         setLoading(false)
       })
       .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isCancel(err)) return
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
         setLoading(false)
         setSubmissionNotFound(true)
-        setTimeout(() => {
+        redirectTimer = setTimeout(() => {
           navigate('/submissions')
         }, 2000)
       })
-  }, [])
+    return () => {
+      controller.abort()
+      if (redirectTimer) clearTimeout(redirectTimer)
+    }
+  }, [params.submission_id, apiBase])
 
   const [taskLoading, setTaskLoading] = useState(true)
   const [taskId, setTaskId] = useState(-1)
@@ -215,18 +240,23 @@ function ProblemsPid() {
     setTaskLoading(true)
     setTaskDetailsOpen(true)
   }
+  // task fetch も apiBase に依存するので legacy↔新側切替に追従させる。
+  // 加えて、taskId 連続切替時の race を avoid するため AbortController を使う。
   useEffect(() => {
-    if (taskId < 0) return
+    if (taskId < 0) return undefined
+    const controller = new AbortController()
     axios
-      .get<Task>(`${api}/tasks/${taskId}`, {
-        withCredentials: true
+      .get<Task>(`${apiBase}/tasks/${taskId}`, {
+        withCredentials: true,
+        signal: controller.signal
       })
       .then((res) => {
         setTask(res.data)
         setTaskLoading(false)
       })
       .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isCancel(err)) return
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
         setTaskLoading(false)
         setTask({
           id: -1,
@@ -239,7 +269,10 @@ function ProblemsPid() {
           cpu_time: '-1'
         })
       })
-  }, [taskId])
+    return () => {
+      controller.abort()
+    }
+  }, [taskId, apiBase])
 
   return (
     <div className="bg-local bg-gradient-to-bl from-heroyellow-100 to-cyan-100 pb-4">
@@ -257,8 +290,9 @@ function ProblemsPid() {
               <div className="mx-2">Submission </div>
               <div className="mx-1 font-semibold">#</div>
               <div className="font-semibold">{submission.id}</div>
-              {(submission.author === user.username ||
-                user.username === 'admin') &&
+              {!isLegacy &&
+                (submission.author === user.username ||
+                  user.username === 'admin') &&
                 !submission.result.startsWith('WJ') &&
                 submission.result !== '...' &&
                 submission.result !== '' &&
@@ -301,7 +335,7 @@ function ProblemsPid() {
                 </div>
                 <div className="flex">
                   <div className="text-xl my-2">Info</div>
-                  {submission.result.startsWith('WJ') && (
+                  {!isLegacy && submission.result.startsWith('WJ') && (
                     <button
                       onClick={() => {
                         reload()
@@ -339,7 +373,9 @@ function ProblemsPid() {
                       user
                     </div>
                     <div className="table-cell p-1.5 border">
-                      {submission.author}
+                      {isLegacy
+                        ? `[legacy] ${submission.author}`
+                        : submission.author}
                     </div>
                   </div>
                   <div className="table-row-group">
