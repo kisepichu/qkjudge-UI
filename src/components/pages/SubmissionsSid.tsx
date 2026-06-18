@@ -54,9 +54,12 @@ function ProblemsPid() {
   // 事実上出ないが、防御的に !isLegacy ガードも付ける)。
   const isLegacy = location.pathname.startsWith('/legacy/')
   const apiBase = isLegacy ? `${api}/legacy` : api
+  // pathname は SPA 内ナビ (別 submission_id / 新側↔legacy 切替) で変わるため、
+  // beforeLogin に保存する戻り先 URL も追従させる (post-login redirect が古い
+  // ページを指してしまうのを防ぐ)。
   useEffect(() => {
     setBeforeLogin(location.pathname)
-  }, [])
+  }, [location.pathname])
   const user = useUserState()
 
   const params = useParams<{
