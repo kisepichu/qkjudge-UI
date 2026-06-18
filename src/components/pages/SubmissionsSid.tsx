@@ -49,7 +49,9 @@ function ProblemsPid() {
   const location = useLocation()
   // URL prefix で「旧サーバーから持ち越した legacy 提出の表示」と判定する。
   // legacy の場合 API は /legacy/submissions/{id} と /legacy/tasks/{id} を叩く必要があり、
-  // rejudge/reload も read-only スナップショット相手では意味がないので無効化する。
+  // read-only スナップショット相手なので Rejudge / Reload ボタンは出さない (Reload は
+  // result が `WJ` の間だけ出るボタンで、legacy スナップショットは常に確定結果のため
+  // 事実上出ないが、防御的に !isLegacy ガードも付ける)。
   const isLegacy = location.pathname.startsWith('/legacy/')
   const apiBase = isLegacy ? `${api}/legacy` : api
   useEffect(() => {
@@ -173,7 +175,10 @@ function ProblemsPid() {
       })
   }
 
+  // submission_id (SPA 内の別提出への遷移) と apiBase (legacy↔新側の切替) のどちらが
+  // 変わっても再 fetch しないと、古い提出のデータが画面に残ってしまう。
   useEffect(() => {
+    setLoading(true)
     axios
       .get<Submission>(`${apiBase}/submissions/${params.submission_id}`, {
         withCredentials: true
@@ -190,14 +195,14 @@ function ProblemsPid() {
         setLoading(false)
       })
       .catch((err) => {
-        if (axios.isAxiosError(err)) console.log(err.status)
+        if (axios.isAxiosError(err)) console.log(err.response?.status)
         setLoading(false)
         setSubmissionNotFound(true)
         setTimeout(() => {
           navigate('/submissions')
         }, 2000)
       })
-  }, [])
+  }, [params.submission_id, apiBase])
 
   const [taskLoading, setTaskLoading] = useState(true)
   const [taskId, setTaskId] = useState(-1)
@@ -307,7 +312,7 @@ function ProblemsPid() {
                 </div>
                 <div className="flex">
                   <div className="text-xl my-2">Info</div>
-                  {submission.result.startsWith('WJ') && (
+                  {!isLegacy && submission.result.startsWith('WJ') && (
                     <button
                       onClick={() => {
                         reload()
